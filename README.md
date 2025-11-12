@@ -1,6 +1,6 @@
 # U-Time & U-Sleep
 
-Official implementation of
+Keras 3.0 migration of the implementation of
 
 * The *U-Time* [[1]](#utime_ref) model for general-purpose time-series segmentation.
 * The *U-Sleep* [[2]](#usleep_ref) model for resilient high-frequency sleep staging.
