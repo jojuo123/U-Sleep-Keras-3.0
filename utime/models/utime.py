@@ -8,13 +8,19 @@ Processing Systems (NeurIPS 2019)
 """
 import logging
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras import regularizers
-from tensorflow.keras.layers import (Input, BatchNormalization, Cropping2D,
-                                     Concatenate, MaxPooling2D,
-                                     UpSampling2D, ZeroPadding2D, Lambda,
-                                     Conv2D, AveragePooling2D)
+# import tensorflow as tf
+# from tensorflow.keras.models import Model
+# from tensorflow.keras import regularizers
+# from tensorflow.keras.layers import (Input, BatchNormalization, Cropping2D,
+#                                      Concatenate, MaxPooling2D,
+#                                      UpSampling2D, ZeroPadding2D, Lambda,
+#                                      Conv2D, AveragePooling2D)
+
+import keras 
+from keras import Model
+from keras.layers import Input, BatchNormalization, Concatenate, MaxPooling2D, UpSampling2D, Conv2D, AveragePooling2D, ZeroPadding2D, Lambda, Cropping2D
+from keras import regularizers
+
 from utime.utils.conv_arithmetics import compute_receptive_fields
 from utime.train.utils import get_activation_function
 
@@ -283,7 +289,7 @@ class UTime(Model):
         s = [-1, n_periods, input_dims//data_per_period, n_classes]
         if s[2] == 1:
             s.pop(2)  # Squeeze the dim
-        out = Lambda(lambda x: tf.reshape(x, s),
+        out = Lambda(lambda x: keras.ops.reshape(x, s),
                      name="{}sequence_classification_reshaped".format(name_prefix))(out)
         return out
 
@@ -296,7 +302,7 @@ class UTime(Model):
                                   self.input_dims,
                                   self.n_channels])
         reshaped = [-1, self.n_periods*self.input_dims, 1, self.n_channels]
-        in_reshaped = Lambda(lambda x: tf.reshape(x, reshaped))(inputs)
+        in_reshaped = Lambda(lambda x: keras.ops.reshape(x, reshaped))(inputs)
 
         # Apply regularization if not None or 0
         regularizer = regularizers.l2(self.l2_reg) if self.l2_reg else None

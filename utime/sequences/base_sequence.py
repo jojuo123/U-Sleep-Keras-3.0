@@ -1,7 +1,9 @@
 import logging
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.utils import Sequence
+# import tensorflow as tf
+# from tensorflow.keras.utils import Sequence
+import keras
+from keras.utils import Sequence
 from functools import wraps
 from multiprocessing import current_process
 from utime import Defaults
@@ -69,7 +71,7 @@ class _BaseSequence(Sequence):
         while True:
             for i in range(len(self)):
                 x, y = self.__getitem__(i)  # index does not matter
-                yield tf.convert_to_tensor(x), tf.convert_to_tensor(y)
+                yield keras.ops.convert_to_tensor(x), keras.ops.convert_to_tensor(y)
 
     def __getitem__(self, idx):
         raise NotImplemented

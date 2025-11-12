@@ -54,7 +54,7 @@ def get_parser():
                         choices=['DEBUG', 'INFO', 'WARNING', 'WARN', 'ERROR', 'FATAL', 'CRITICAL'],
                         help="Set the logging level for this script. Default 'INFO'.")
     parser.add_argument("--seed", default=None, type=int,
-                        help="Run this script with numpy, random and tensorflow RNGs seeded "
+                        help="Run this script with numpy, random and keras RNGs seeded "
                              "from integer --seed.")
     return parser
 

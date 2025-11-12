@@ -104,12 +104,14 @@ class _Defaults(Defaults):
 
     @classmethod
     def set_global_seed(cls, seed):
-        import tensorflow as tf
+        # import tensorflow as tf
+        import keras 
         import numpy as np
         import random
         cls.GLOBAL_SEED = int(seed)
-        logger.info(f"Seeding TensorFlow, numpy and random modules with seed: {cls.GLOBAL_SEED}")
-        tf.random.set_seed(cls.GLOBAL_SEED)
+        logger.info(f"Seeding Keras, numpy and random modules with seed: {cls.GLOBAL_SEED}")
+        # tf.random.set_seed(cls.GLOBAL_SEED)
+        keras.utils.set_random_seed(cls.GLOBAL_SEED)
         np.random.seed(cls.GLOBAL_SEED)
         random.seed(cls.GLOBAL_SEED)
 

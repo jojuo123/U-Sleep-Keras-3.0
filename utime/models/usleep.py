@@ -8,13 +8,18 @@ Processing Systems (NeurIPS 2019)
 """
 import logging
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Input, BatchNormalization, \
-                                    Concatenate, MaxPooling2D, \
-                                    UpSampling2D, Conv2D, \
-                                    AveragePooling2D, Layer
+# import tensorflow as tf
+# from tensorflow.keras.models import Model
+# from tensorflow.keras import regularizers
+# from tensorflow.keras.layers import Input, BatchNormalization, \
+#                                     Concatenate, MaxPooling2D, \
+#                                     UpSampling2D, Conv2D, \
+#                                     AveragePooling2D, Layer
+import keras 
+from keras import Model
+from keras.layers import Input, BatchNormalization, Concatenate, MaxPooling2D, UpSampling2D, Conv2D, AveragePooling2D, Layer
+from keras import regularizers
+
 from utime.utils.conv_arithmetics import compute_receptive_fields
 from utime.train.utils import get_activation_function
 
@@ -23,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 def shape_safe(input, dim=None):
     if dim is not None:
-        return input.shape[dim] or tf.shape(input)[dim]
+        return input.shape[dim] or keras.ops.shape(input)[dim]
     else:
         return [shape_safe(input, d) for d in range(len(input.shape))]
 
@@ -44,7 +49,7 @@ class InputReshape(Layer):
 
     def call(self, inputs, **kwargs):
         shape = shape_safe(inputs)
-        inputs_reshaped = tf.reshape(inputs, shape=[shape[0], self.seq_length or shape[1]*shape[2], 1, self.n_channels])
+        inputs_reshaped = keras.ops.reshape(inputs, shape=[shape[0], self.seq_length or shape[1]*shape[2], 1, self.n_channels])
         return inputs_reshaped
 
 
@@ -66,7 +71,7 @@ class OutputReshape(Layer):
         shape = [shape[0], self.n_periods or shape[1], n_pred, inputs.shape[-1]]
         if n_pred == 1:
             shape.pop(2)
-        return tf.reshape(inputs, shape=shape)
+        return keras.ops.reshape(inputs, shape=shape)
 
 
 class PadStartToEvenLength(Layer):
@@ -74,7 +79,7 @@ class PadStartToEvenLength(Layer):
         super(PadStartToEvenLength, self).__init__(name=name, **kwargs)
 
     def call(self, inputs, **kwargs):
-        return tf.pad(inputs,
+        return keras.ops.pad(inputs,
                       paddings=[[0, 0], [shape_safe(inputs, 1) % 2, 0], [0, 0], [0, 0]])
 
 
@@ -83,8 +88,8 @@ class PadToMatch(Layer):
         super(PadToMatch, self).__init__(name=name, **kwargs)
 
     def call(self, inputs, **kwargs):
-        s = tf.maximum(0, shape_safe(inputs[1], 1) - shape_safe(inputs[0], 1))
-        return tf.pad(inputs[0],
+        s = keras.ops.maximum(0, shape_safe(inputs[1], 1) - shape_safe(inputs[0], 1))
+        return keras.ops.pad(inputs[0],
                       paddings=[[0, 0], [s // 2, s // 2 + (s % 2)], [0, 0], [0, 0]])
 
 
@@ -93,7 +98,7 @@ class CropToMatch(Layer):
         super(CropToMatch, self).__init__(name=name, **kwargs)
 
     def call(self, inputs, **kwargs):
-        diff = tf.maximum(0, shape_safe(inputs[0], 1) - shape_safe(inputs[1], 1))
+        diff = keras.ops.maximum(0, shape_safe(inputs[0], 1) - shape_safe(inputs[1], 1))
         start = diff//2 + diff % 2
         return inputs[0][:, start:start+shape_safe(inputs[1], 1), :, :]
 
@@ -119,8 +124,8 @@ class USleep(Model):
                  padding="same",
                  init_filters=5,
                  complexity_factor=2,
-                 kernel_initializer=tf.keras.initializers.glorot_uniform,
-                 bias_initializer=tf.keras.initializers.zeros,
+                 kernel_initializer=keras.initializers.glorot_uniform,
+                 bias_initializer=keras.initializers.zeros,
                  l2_reg=None,
                  data_per_prediction=None,
                  no_log=False,
@@ -342,7 +347,7 @@ class USleep(Model):
         inputs_reshaped = InputReshape(seq_length, self.n_channels)(inputs)
         
         # Apply regularization if not None or 0
-        regularizer = regularizers.l2(self.l2_reg) if self.l2_reg else None
+        regularizer = regularizers.L2(self.l2_reg) if self.l2_reg else None
 
         # Get activation func from tf or tfa
         activation = get_activation_function(activation_string=self.activation)

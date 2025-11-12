@@ -2,9 +2,11 @@ import logging
 import os
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+# import tensorflow as tf
+import keras
 from carbontracker.tracker import CarbonTracker
-from tensorflow.keras.callbacks import Callback
+# from tensorflow.keras.callbacks import Callback
+from keras.callbacks import Callback
 from psg_utils.utils import get_memory_usage
 from utime.utils import highlighted
 from collections import defaultdict
@@ -72,7 +74,8 @@ class Validation(Callback):
     def predict(self):
         # Get tensors to run and their names
         metrics = getattr(self.model, "loss_functions", self.model.losses) or self.model.loss + self.model.metrics
-        metrics = list(filter(lambda m: not type(m) is tf.keras.metrics.Mean, metrics))
+        # metrics = list(filter(lambda m: not type(m) is tf.keras.metrics.Mean, metrics))
+        metrics = list(filter(lambda m: not type(m) is keras.metrics.Mean, metrics))
         metrics_names = self.model.metrics_names
         self.model.reset_metrics()
         assert len(metrics_names) == len(metrics)
@@ -114,7 +117,8 @@ class Validation(Callback):
 
                 # Run all metrics
                 for metric, name in zip(metrics, metrics_names):
-                    res = tf.reduce_mean(metric(y, pred))
+                    # res = tf.reduce_mean(metric(y, pred))
+                    res = keras.ops.mean(metric(y, pred))
                     if hasattr(pred, "numpy"):
                         res = res.numpy()
                     per_study_metrics[name].append(res)

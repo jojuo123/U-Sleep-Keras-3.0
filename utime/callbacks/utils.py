@@ -1,5 +1,5 @@
 import logging
-from tensorflow.keras import callbacks as tfcb
+from keras import callbacks as kcb
 from utime import callbacks as tcb
 from utime.callbacks import DelayedCallback
 
@@ -35,7 +35,7 @@ def init_callback_objects(callbacks):
             cls_name = callback["class_name"]
             start_from = callback.get("start_from")
             try:
-                cb = getattr(tfcb, cls_name, None) or getattr(tcb, cls_name)
+                cb = getattr(kcb, cls_name, None) or getattr(tcb, cls_name)
             except AttributeError as e:
                 raise ValueError("No callback named %s" % cls_name) from e
             cb = cb(**kwargs)

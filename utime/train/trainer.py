@@ -7,7 +7,7 @@ training the model given a set of parameters and (non-initialized) callbacks.
 
 import logging
 import tensorflow as tf
-from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError
+from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
 from utime.callbacks import init_callback_objects, remove_validation_callbacks
 from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption
 from psg_utils.utils import ensure_list_or_tuple
@@ -154,6 +154,7 @@ class Trainer(object):
         callbacks, cb_dict = init_callback_objects(callbacks)
 
         # Wrap generator in TF Dataset and disable auto shard
+        #TODO: Check change keras 3
         dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
         train = tf.data.Dataset.from_generator(train, dtypes, shapes)
         options = tf.data.Options()

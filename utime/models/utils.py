@@ -6,6 +6,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
 
+import keras
+
+#TODO: change to keras 3
+
 logger = logging.getLogger(__name__)
 
 
@@ -72,9 +76,11 @@ def get_last_model(model_dir):
             return None, None
 
 
+#TODO: change to keras 3
+#is it needed?
 def save_frozen_model(keras_model, out_folder, pb_file_name):
-    assert len(keras_model.inputs) == 1, 'Only implemented for models wit 1 input'
-    assert len(keras_model.outputs) == 1, 'Only implemented for models wit 1 output'
+    assert len(keras_model.inputs) == 1, 'Only implemented for models with 1 input'
+    assert len(keras_model.outputs) == 1, 'Only implemented for models with 1 output'
     model = tf.function(keras_model, input_signature=[tf.TensorSpec(keras_model.inputs[0].shape,
                                                                     keras_model.inputs[0].dtype)])
     frozen_func = convert_variables_to_constants_v2(model.get_concrete_function())

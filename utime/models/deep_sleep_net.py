@@ -6,6 +6,8 @@ on Neural Systems and Rehabilitation Engineering, vol. 25, no. 11,
 pp. 1998-2008, Nov. 2017. doi: 10.1109/TNSRE.2017.2721116
 """
 
+#TODO: switch to keras 3
+
 import logging
 import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, BatchNormalization, MaxPooling1D, \

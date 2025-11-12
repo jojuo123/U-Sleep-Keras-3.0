@@ -1,6 +1,8 @@
 import logging
 import numpy as np
 import tensorflow as tf
+import keras
+from keras import ops
 from functools import wraps
 
 logger = logging.getLogger(__name__)
@@ -17,17 +19,19 @@ def ignore_out_of_bounds_classes_wrapper(func):
     def wrapper(true, pred, **kwargs):
         true.set_shape(pred.get_shape()[:-1] + [1])
         n_pred_classes = pred.get_shape()[-1]
-        true = tf.reshape(true, [-1])
-        pred = tf.reshape(pred, [-1, n_pred_classes])
-        mask = tf.where(tf.logical_and(
-                            tf.greater_equal(true, 0),
-                            tf.less(true, n_pred_classes)
+        true = ops.reshape(true, [-1])
+        pred = ops.reshape(pred, [-1, n_pred_classes])
+        mask = ops.where(ops.logical_and(
+                            ops.greater_equal(true, 0),
+                            ops.less(true, n_pred_classes)
                         ),
-                        tf.ones_like(true),
-                        tf.zeros_like(true))
-        mask = tf.cast(mask, tf.bool)
-        true = tf.boolean_mask(true, mask, axis=0)
-        pred = tf.boolean_mask(pred, mask, axis=0)
+                        ops.ones_like(true),
+                        ops.zeros_like(true))
+        mask = ops.cast(mask, bool)
+        # true = ops.boolean_mask(true, mask, axis=0)
+        # pred = ops.boolean_mask(pred, mask, axis=0)
+        true = true[mask]
+        pred = pred[mask]
         return func(true, pred, **kwargs)
     logger.info(f"Wrapping loss/metric function '{func}' to ignore 'true' "
                 f"classes with integer values outside of the model prediction integer range "
