@@ -9,16 +9,18 @@ pp. 1998-2008, Nov. 2017. doi: 10.1109/TNSRE.2017.2721116
 #TODO: switch to keras 3
 
 import logging
-import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, BatchNormalization, MaxPooling1D, \
-                                    Input, Flatten, Dense, Dropout, Concatenate, \
-                                    Lambda, LSTM, Bidirectional, Add
+# import tensorflow as tf
+# from tensorflow.keras.layers import Conv1D, BatchNormalization, MaxPooling1D, \
+#                                     Input, Flatten, Dense, Dropout, Concatenate, \
+#                                     Lambda, LSTM, Bidirectional, Add
+import keras
+from keras.layers import Conv1D, BatchNormalization, MaxPooling1D, Input, Flatten, Dense, Dropout, Concatenate, Lambda, LSTM, Bidirectional, Add
 from utime.models.utils import standardize_batch_shape
 
 logger = logging.getLogger(__name__)
 
 
-class DeepFeatureNet(tf.keras.Model):
+class DeepFeatureNet(keras.Model):
     """
     CNN/Representation learning sub-network
     """
@@ -105,7 +107,7 @@ class DeepFeatureNet(tf.keras.Model):
             inputs = Input(shape=self.batch_shape, name="input")
 
         # Apply regularization if not None or 0
-        self.reg = tf.keras.regularizers.l2(self.l2_reg) if self.l2_reg else None
+        self.reg = keras.regularizers.l2(self.l2_reg) if self.l2_reg else None
 
         # Build two encoders
         with tf.name_scope("small_filter_encoder"):

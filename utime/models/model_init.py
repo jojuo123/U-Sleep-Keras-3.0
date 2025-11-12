@@ -5,7 +5,7 @@ parameters.
 
 import logging
 import os
-import tensorflow as tf
+# import tensorflow as tf
 import keras
 from utime import models
 from utime.models.utils import get_best_model, get_last_model
@@ -39,7 +39,7 @@ def init_model(build_hparams, clear_previous=False):
     return models.__dict__[cls_name](**build_hparams)
 
 
-def load_from_file(model, file_path, by_name=True):
+def load_from_file(model, file_path, by_name=False):
     """
     Load parameters from file 'file_path' into model 'model'.
 
@@ -48,14 +48,13 @@ def load_from_file(model, file_path, by_name=True):
         file_path:  A path to a parameter file (h5 format typically)
         by_name:    Load parameters by layer names instead of order (default).
     """
-    #TODO: change to keras 3
-    model.load_weights(file_path, by_name=by_name)
+    # model.load_weights(file_path, by_name=by_name)
+    model.load_weights(file_path)
     logger.info(f"Loading parameters from: {file_path}")
 
 
-def init_and_load_model(hparams, weights_file, clear_previous=False, by_name=True):
+def init_and_load_model(hparams, weights_file, clear_previous=False, by_name=False):
     
-    #TODO: change to keras 3
     """
     Initializes a model according to hparams. Then sets its parameters from
     the parameters in h5 file 'weights_file'.
@@ -74,7 +73,7 @@ def init_and_load_model(hparams, weights_file, clear_previous=False, by_name=Tru
     return model
 
 
-def init_and_load_best_model(hparams, model_dir, clear_previous=False, by_name=True):
+def init_and_load_best_model(hparams, model_dir, clear_previous=False, by_name=False):
     """
     Initializes a model according to hparams. Then finds the best model in
     model_dir and loads it (see utime.utils.get_best_model).
@@ -96,7 +95,7 @@ def init_and_load_best_model(hparams, model_dir, clear_previous=False, by_name=T
     return model, model_file_name
 
 
-def init_and_load_latest_model(hparams, model_dir, clear_previous=False, by_name=True):
+def init_and_load_latest_model(hparams, model_dir, clear_previous=False, by_name=False):
     """
     Initializes a model according to hparams. Then finds the latest model in
     model_dir and loads it (see utime.utils.get_latest_model).

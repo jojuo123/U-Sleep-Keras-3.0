@@ -3,8 +3,8 @@ import os
 import re
 import glob
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
+# import tensorflow as tf
+# from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
 
 import keras
 
@@ -51,7 +51,7 @@ def get_best_model(model_dir):
     m = os.path.abspath(os.path.join(model_dir, "model_weights.h5"))
     if not os.path.exists(m):
         raise OSError("Did not find any model files matching the patterns {} "
-                      "and did not find a model_weights.h5 file."
+                      "and did not find a model_weights.keras file."
                       "".format(patterns))
     return m
 
@@ -78,13 +78,13 @@ def get_last_model(model_dir):
 
 #TODO: change to keras 3
 #is it needed?
-def save_frozen_model(keras_model, out_folder, pb_file_name):
-    assert len(keras_model.inputs) == 1, 'Only implemented for models with 1 input'
-    assert len(keras_model.outputs) == 1, 'Only implemented for models with 1 output'
-    model = tf.function(keras_model, input_signature=[tf.TensorSpec(keras_model.inputs[0].shape,
-                                                                    keras_model.inputs[0].dtype)])
-    frozen_func = convert_variables_to_constants_v2(model.get_concrete_function())
-    tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
-                      logdir=out_folder,
-                      name=pb_file_name,
-                      as_text=False)
+# def save_frozen_model(keras_model, out_folder, pb_file_name):
+#     assert len(keras_model.inputs) == 1, 'Only implemented for models with 1 input'
+#     assert len(keras_model.outputs) == 1, 'Only implemented for models with 1 output'
+#     model = tf.function(keras_model, input_signature=[tf.TensorSpec(keras_model.inputs[0].shape,
+#                                                                     keras_model.inputs[0].dtype)])
+#     frozen_func = convert_variables_to_constants_v2(model.get_concrete_function())
+#     tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
+#                       logdir=out_folder,
+#                       name=pb_file_name,
+#                       as_text=False)

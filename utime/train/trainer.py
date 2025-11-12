@@ -6,8 +6,8 @@ training the model given a set of parameters and (non-initialized) callbacks.
 """
 
 import logging
-import tensorflow as tf
-from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
+# import tensorflow as tf
+import os
 from utime.callbacks import init_callback_objects, remove_validation_callbacks
 from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption
 from psg_utils.utils import ensure_list_or_tuple
@@ -84,23 +84,48 @@ class Trainer(object):
             fit_kwargs: (dict) Keyword arguments passed to self._fit
         """
         fitting = True
-        while fitting:
-            try:
-                self._fit(batch_size=batch_size, **fit_kwargs)
-                fitting = False
-            except (ResourceExhaustedError, InternalError):
-                # Reduce batch size
-                batch_size -= 2
-                logger.error(f"[MEMORY ERROR] Reducing batch size by 2 (now {batch_size})")
-                if batch_size < 1:
-                    logger.error("[ERROR] Batch size negative or zero! Stopping training.")
+        
+        if os.environ['KERAS_BACKEND'] == 'tensorflow':
+            from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
+        
+            while fitting:
+                try:
+                    self._fit(batch_size=batch_size, **fit_kwargs)
                     fitting = False
-            except KeyboardInterrupt:
-                fitting = False
-            except Exception as e:
-                logger.exception(str(e), exc_info=e)
-                raise e
-        logger.info("Training stopped.")
+                except (ResourceExhaustedError, InternalError):
+                    # Reduce batch size
+                    batch_size -= 2
+                    logger.error(f"[MEMORY ERROR] Reducing batch size by 2 (now {batch_size})")
+                    if batch_size < 1:
+                        logger.error("[ERROR] Batch size negative or zero! Stopping training.")
+                        fitting = False
+                except KeyboardInterrupt:
+                    fitting = False
+                except Exception as e:
+                    logger.exception(str(e), exc_info=e)
+                    raise e
+            logger.info("Training stopped.")
+        elif os.environ['KERAS_BACKEND'] == 'torch':
+            while fitting:
+                try:
+                    self._fit(batch_size=batch_size, **fit_kwargs)
+                    fitting = False
+                except RuntimeError as e:
+                    if 'out of memory' in str(e):
+                        batch_size -= 2
+                    batch_size -= 2
+                    logger.error(f"[MEMORY ERROR] Reducing batch size by 2 (now {batch_size})")
+                    if batch_size < 1:
+                        logger.error("[ERROR] Batch size negative or zero! Stopping training.")
+                        fitting = False
+                except KeyboardInterrupt:
+                    fitting = False
+                except Exception as e:
+                    logger.exception(str(e), exc_info=e)
+                    raise e
+            logger.info("Training stopped.")
+        else:
+            logger.info('Unsupported backend')
         return self.model
 
     def _fit(self,
@@ -154,12 +179,12 @@ class Trainer(object):
         callbacks, cb_dict = init_callback_objects(callbacks)
 
         # Wrap generator in TF Dataset and disable auto shard
-        #TODO: Check change keras 3
-        dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
-        train = tf.data.Dataset.from_generator(train, dtypes, shapes)
-        options = tf.data.Options()
-        options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
-        train = train.with_options(options)
+        # TODO: Check change keras 3
+        # dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
+        # train = tf.data.Dataset.from_generator(train, dtypes, shapes)
+        # options = tf.data.Options()
+        # options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+        # train = train.with_options(options)
 
         # Fit the model
         self.model.fit(

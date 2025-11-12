@@ -10,7 +10,7 @@ import numpy as np
 import os
 import tables
 # import tensorflow as tf
-import jax
+# import jax
 import keras
 from argparse import ArgumentParser
 from utime import Defaults
@@ -259,28 +259,58 @@ def run(args):
 
     # Set the GPU visibility
     
+    #TODO: configure distribution learning
     
-    num_gpus = find_and_set_gpus(args.num_gpus, args.force_gpus)
-    # gpus = [g.name.replace("physical_device", "device") for g in tf.config.list_physical_devices('GPU')]
-    gpus = jax.devices("gpu") #TODO: better way to count devices
-    assert len(gpus) == num_gpus, "Unexpected difference in number of visible and requested GPUs."
-    # Initialize and potential load parameters into the model
-    strategy = tf.distribute.MirroredStrategy(gpus) if gpus else tf.distribute.OneDeviceStrategy('/device:CPU:0')  #TODO: way to initialize strategy for distribution
-    logger.info(f"Using TF distribution strategy: {strategy} on GPUs: {gpus}. (CPU:0 if empty).")
-    with strategy.scope():
-        model = init_model(hparams["build"], clear_previous=False)
-        if parameter_file:
-            load_from_file(model, parameter_file, by_name=True)
+    # import os
+    
+    # if os.environ['KERAS_BACKEND'] == 'tensorflow':
+    #     import tensorflow as tf
+    #     num_gpus = find_and_set_gpus(args.num_gpus, args.force_gpus)
+    # # gpus = [g.name.replace("physical_device", "device") for g in tf.config.list_physical_devices('GPU')]
+    # # gpus = jax.devices("gpu") #TODO: better way to count devices
+    #     gpus = keras.distribution.list_devices(device_type='gpu')
+    #     assert len(gpus) == num_gpus, "Unexpected difference in number of visible and requested GPUs."
+    #     # Initialize and potential load parameters into the model
+    #     strategy = tf.distribute.MirroredStrategy(gpus) if gpus else tf.distribute.OneDeviceStrategy('/device:CPU:0')  #TODO: way to initialize strategy for distribution
+        
+    #     # data_parallel = keras.distribution.DataParallel(devices=gpus, auto_shard_dataset=False) if len(gpus) > 0 else keras.distribution.DataParallel(devices=keras.distribution.list_devices('cpu'))
+    #     # keras.distribution.set_distribution(data_parallel)
+    #     logger.info(f"Using Tensorflow {strategy} on GPUs: {gpus}. (CPU:0 if empty).")
+        
+        
+    #     with strategy.scope():
+    #         model = init_model(hparams["build"], clear_previous=False)
+    #         if parameter_file:
+    #             load_from_file(model, parameter_file, by_name=False)
 
-        # Prepare a trainer object and compile the model
-        trainer = Trainer(model)
-        trainer.compile_model(n_classes=hparams["build"].get("n_classes"),
-                              reduction='none',
-                            #   reduction=tf.keras.losses.Reduction.NONE,
-                              **hparams["fit"])
+    #         # Prepare a trainer object and compile the model
+    #         trainer = Trainer(model)
+    #         trainer.compile_model(n_classes=hparams["build"].get("n_classes"),
+    #                                 reduction='none',
+    #                             #   reduction=tf.keras.losses.Reduction.NONE,
+    #                                 **hparams["fit"])
+
+    #         # Fit the model on a number of samples as specified in args
+    #         samples_pr_epoch = get_samples_per_epoch(train_seq, args.max_train_samples_per_epoch)
+    
+    # elif os.environ['KERAS_BACKEND'] == 'torch':
+    #     import torch
+    
+    
+    model = init_model(hparams["build"], clear_previous=False)
+    if parameter_file:
+        load_from_file(model, parameter_file, by_name=False)
+
+    # Prepare a trainer object and compile the model
+    trainer = Trainer(model)
+    trainer.compile_model(n_classes=hparams["build"].get("n_classes"),
+                            reduction='none',
+                        #   reduction=tf.keras.losses.Reduction.NONE,
+                            **hparams["fit"])
 
     # Fit the model on a number of samples as specified in args
     samples_pr_epoch = get_samples_per_epoch(train_seq, args.max_train_samples_per_epoch)
+        
 
     try:
         _ = trainer.fit(train=train_seq,

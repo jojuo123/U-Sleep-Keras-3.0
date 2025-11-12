@@ -128,7 +128,7 @@ def get_and_load_model(project_dir, hparams, weights_file_name=None, clear_previ
             hparams=hparams,
             model_dir=os.path.join(project_dir, "model"),
             clear_previous=clear_previous,
-            by_name=True
+            by_name=False
         )
     else:
         from utime.models.model_init import init_and_load_model
@@ -136,7 +136,7 @@ def get_and_load_model(project_dir, hparams, weights_file_name=None, clear_previ
         model = init_and_load_model(hparams=hparams,
                                     weights_file=weights_file_name,
                                     clear_previous=clear_previous,
-                                    by_name=True)
+                                    by_name=False)
     return model
 
 
