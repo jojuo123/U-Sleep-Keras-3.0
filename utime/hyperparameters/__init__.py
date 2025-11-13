@@ -126,5 +126,20 @@ class YAMLHParams(_YAMLHParams):
         super(YAMLHParams, self).__init__(yaml_path,
                                           version_control_package_name=vc,
                                           check_deprecated_params_func=check_deprecated_params)
+        self.change_to_correct_dtype(self)
+    
+    def change_to_correct_dtype(self, x):
+        assert isinstance(x, dict)
+        for k, v in x.items():
+            if isinstance(v, ry.scalarfloat.ScalarFloat):
+                x[k] = float(v)
+            if isinstance(v, dict):
+                self.change_to_correct_dtype(x[k])
+            if isinstance(v, ry.scalarint.ScalarInt):
+                x[k] = int(v)
+            if isinstance(v, ry.scalarint.ScalarInt):
+                x[k] = int(v)
+            if isinstance(v, ry.scalarbool.ScalarBool):
+                x[k] = bool(v)
         
     
