@@ -168,6 +168,9 @@ def init_optimizer(optimizer_string, **kwargs):
     Same as 'init_losses', but for optimizers.
     Please refer to the 'init_losses' docstring.
     """
+    for k, v in kwargs.items():
+        print(k, v)
+        print(type(v))
     optimizer = _get_classes_or_funcs(
         optimizer_string,
         func_modules=[keras.optimizers]

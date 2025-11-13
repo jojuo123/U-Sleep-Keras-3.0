@@ -10,6 +10,7 @@ class _Defaults(Defaults):
     """
     Stores and potentially updates default values for sleep stages etc.
     """
+    BACKEND = 'tensorflow'
     PROJECT_DIRECTORY = None  # If using ut scripts, set by ut.py entry script
 
     # Name of the parent package: 'utime' at the time of writing this comment

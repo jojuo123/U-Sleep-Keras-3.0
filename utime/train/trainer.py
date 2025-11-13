@@ -6,7 +6,8 @@ training the model given a set of parameters and (non-initialized) callbacks.
 """
 
 import logging
-# import tensorflow as tf
+import tensorflow as tf
+import keras
 import os
 from utime.callbacks import init_callback_objects, remove_validation_callbacks
 from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption
@@ -61,7 +62,10 @@ class Trainer(object):
         metrics = init_metrics(metrics, ignore_out_of_bounds_classes, **metric_kwargs)
 
         # Compile the model
-        self.model.compile(optimizer=optimizer, loss=losses, metrics=metrics)
+        # print(optimizer)
+        # assert isinstance(optimizer, keras.optimizers.Optimizer)
+        
+        self.model.compile(optimizer=optimizer, loss=losses, metrics=metrics, auto_scale_loss=False)
         logger.info(f"\nOptimizer:   {optimizer}\n"
                     f"Loss funcs:  {losses}\n"
                     f"Metrics:     {metrics}")
@@ -179,13 +183,13 @@ class Trainer(object):
         callbacks, cb_dict = init_callback_objects(callbacks)
 
         # Wrap generator in TF Dataset and disable auto shard
-        # TODO: Check change keras 3
-        # dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
-        # train = tf.data.Dataset.from_generator(train, dtypes, shapes)
-        # options = tf.data.Options()
-        # options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
-        # train = train.with_options(options)
-
+        # TODO: Remove to only use Keras PyDataset/Sequence
+        dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
+        train = tf.data.Dataset.from_generator(train, dtypes, shapes)
+        options = tf.data.Options()
+        options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+        train = train.with_options(options)
+        # print(self.model.dtype)
         # Fit the model
         self.model.fit(
             train,
@@ -193,9 +197,10 @@ class Trainer(object):
             epochs=n_epochs,
             callbacks=callbacks,
             initial_epoch=init_epoch,
-            use_multiprocessing=False,
-            workers=3,
-            max_queue_size=10,
+            
+            # use_multiprocessing=False, #TODO: Argument moved to Sequence/PyDataset
+            # workers=3, #TODO: Argument moved to Sequence/PyDataset
+            # max_queue_size=10, #TODO: Argument moved to Sequence/PyDataset
             shuffle=False,  # Determined by the chosen Sequence class
             verbose=verbose
         )

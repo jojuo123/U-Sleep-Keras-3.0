@@ -312,6 +312,20 @@ def get_last_epoch(csv_file):
         epoch = int(df["epoch"].to_numpy()[-1])
     return epoch
 
+def ensure_correct_extension(file_name):
+    """
+    Ensure the file_name is in correct format for Keras 3.0 weight-only file (i.e., ****.weights.h5)
+
+    Args:
+        file_name (str): file name used
+
+    Returns:
+        _type_: _description_
+    """
+    if file_name.endswith('.weights.h5'):
+        return file_name.replace('.weights.h5', '')
+    else:
+        return os.path.splitext(file_name)[0]
 
 def save_final_weights(project_dir, model, file_name):
     """
@@ -330,8 +344,8 @@ def save_final_weights(project_dir, model, file_name):
     # Save final model weights
     if not os.path.exists("%s/model" % project_dir):
         os.mkdir("%s/model" % project_dir)
-    model_path = "{}/model/{}.h5".format(project_dir,
-                                         os.path.splitext(file_name)[0])
+    # model_path = "{}/model/{}.weights.h5".format(project_dir, os.path.splitext(file_name)[0])
+    model_path = "{}/model/{}.weights.h5".format(project_dir, ensure_correct_extension(file_name))
     logger.info(f"Saving current model to: {model_path}")
     if os.path.exists(model_path):
         os.remove(model_path)

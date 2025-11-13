@@ -117,7 +117,7 @@ def get_argparser():
                              "rerun of 'ut preprocess' to be effective with "
                              "the 'ut train' --preprocessed flag.")
     parser.add_argument("--final_weights_file_name", type=str,
-                        default="model_weights.h5")
+                        default="model.weights.h5")
     parser.add_argument("--train_on_val", action="store_true",
                         help="Include the validation set in the training set."
                              " Will force --no_val to be active.")

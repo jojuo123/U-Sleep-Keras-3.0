@@ -73,7 +73,7 @@ def assert_project_folder(project_folder, evaluation=False):
                                "folder for model evaluation. Must contain a 'model' "
                                "subfolder.".format(project_folder))
         # There must be a least 1 model file (.h5) in the folder
-        models = glob.glob(os.path.join(model_path, "*.h5"))
+        models = glob.glob(os.path.join(model_path, "*.weights.h5"))
         if not models:
             raise RuntimeError("Did not find any model parameter files in "
                                "model subfolder {}. Model files should have"

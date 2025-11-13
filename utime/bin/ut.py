@@ -56,6 +56,7 @@ def get_parser():
     parser.add_argument("--seed", default=None, type=int,
                         help="Run this script with numpy, random and keras RNGs seeded "
                              "from integer --seed.")
+    parser.add_argument("--backend", default='tensorflow', type=str, choices=['tensorflow', 'torch'])
     return parser
 
 
@@ -78,6 +79,8 @@ def entry_func():
     # OBS we do not create the folder yet.
     # Handled in add_logging_file_handler of individual script where overwriting is also checked.
     Defaults.LOG_DIR = os.path.abspath(parsed.log_dir)
+    Defaults.BACKEND = parsed.backend
+    os.environ["KERAS_BACKEND"] = Defaults.BACKEND
 
     # Init both the utime and psg_utils package-level loggers to share formatter and handlers
     Defaults.init_package_level_loggers(parsed.log_level, package_names=(Defaults.PACKAGE_NAME,

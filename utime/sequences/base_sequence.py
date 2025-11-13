@@ -41,7 +41,7 @@ class _BaseSequence(Sequence):
     current process if not done already.
     """
     def __init__(self):
-        super().__init__()
+        super().__init__(workers=3, use_multiprocessing=False, max_queue_size=10) #TODO: do inheritance here 
 
         # A dictionary mapping process names to whether the process has been
         # seeded
@@ -203,7 +203,7 @@ class BaseSequence(_BaseSequence):
             An ndarray of class counts across all stored SleepStudy objects
             Shape [self.n_classes], dtype np.int
         """
-        counts = np.zeros(shape=[self.n_classes], dtype=np.int)
+        counts = np.zeros(shape=[self.n_classes], dtype=int)
         for im in self.dataset_queue:
             count_dict = im.get_class_counts(as_dict=True)
             for cls, count in count_dict.items():
@@ -433,4 +433,4 @@ class BaseSequence(_BaseSequence):
             # Perform augmentation
             self.augment(X, y, w=w)
 
-        return X, y  # , w  <- weights currently disabled, fix dice-loss first
+        return X.astype(np.float32), y.astype(np.uint8)  # , w  <- weights currently disabled, fix dice-loss first

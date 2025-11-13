@@ -48,10 +48,10 @@ def get_best_model(model_dir):
                 assert len(matches) == 1
                 scores.append(float(matches[0]))
             return os.path.abspath(models[select_func(np.array(scores))])
-    m = os.path.abspath(os.path.join(model_dir, "model_weights.h5"))
+    m = os.path.abspath(os.path.join(model_dir, "model.weights.h5"))
     if not os.path.exists(m):
         raise OSError("Did not find any model files matching the patterns {} "
-                      "and did not find a model_weights.keras file."
+                      "and did not find a model.weights.h5 file."
                       "".format(patterns))
     return m
 
@@ -65,7 +65,7 @@ def get_last_model(model_dir):
         last = np.argmax(epochs)
         return os.path.abspath(models[last]), int(epochs[int(last)])
     else:
-        generic_path = os.path.join(model_dir, "model_weights.h5")
+        generic_path = os.path.join(model_dir, "model.weights.h5")
         if os.path.exists(generic_path):
             # Return epoch 0 as we dont know where else to start
             # This may be changed elsewhere in the code based on the
