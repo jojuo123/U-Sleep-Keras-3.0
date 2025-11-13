@@ -1,5 +1,6 @@
 # import tensorflow as tf
 from keras import ops
+import keras
 
 
 def _get_shapes_and_one_hot(y_true, y_pred):
@@ -31,7 +32,7 @@ def sparse_dice_loss(y_true, y_pred, smooth=1):
     return 1.0 - ops.reduce_mean(dice, axis=-1, keepdims=True)
 
 
-class SparseDiceLoss(tf.keras.losses.Loss):
+class SparseDiceLoss(keras.losses.Loss):
     """ tf reduction wrapper for sparse_dice_loss """
     def __init__(self,
                  reduction,

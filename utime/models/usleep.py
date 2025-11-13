@@ -49,7 +49,7 @@ class InputReshape(Layer):
 
     def call(self, inputs, **kwargs):
         shape = shape_safe(inputs)
-        inputs_reshaped = keras.ops.reshape(inputs, shape=[shape[0], self.seq_length or shape[1]*shape[2], 1, self.n_channels])
+        inputs_reshaped = keras.ops.reshape(inputs, newshape=[shape[0], self.seq_length or shape[1]*shape[2], 1, self.n_channels])
         return inputs_reshaped
 
 
@@ -71,7 +71,7 @@ class OutputReshape(Layer):
         shape = [shape[0], self.n_periods or shape[1], n_pred, inputs.shape[-1]]
         if n_pred == 1:
             shape.pop(2)
-        return keras.ops.reshape(inputs, shape=shape)
+        return keras.ops.reshape(inputs, newshape=shape)
 
 
 class PadStartToEvenLength(Layer):
@@ -80,7 +80,7 @@ class PadStartToEvenLength(Layer):
 
     def call(self, inputs, **kwargs):
         return keras.ops.pad(inputs,
-                      paddings=[[0, 0], [shape_safe(inputs, 1) % 2, 0], [0, 0], [0, 0]])
+                      pad_width=[[0, 0], [shape_safe(inputs, 1) % 2, 0], [0, 0], [0, 0]])
 
 
 class PadToMatch(Layer):
@@ -90,7 +90,7 @@ class PadToMatch(Layer):
     def call(self, inputs, **kwargs):
         s = keras.ops.maximum(0, shape_safe(inputs[1], 1) - shape_safe(inputs[0], 1))
         return keras.ops.pad(inputs[0],
-                      paddings=[[0, 0], [s // 2, s // 2 + (s % 2)], [0, 0], [0, 0]])
+                      pad_width=[[0, 0], [s // 2, s // 2 + (s % 2)], [0, 0], [0, 0]])
 
 
 class CropToMatch(Layer):
