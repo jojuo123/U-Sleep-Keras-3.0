@@ -139,7 +139,7 @@ class YAMLHParams(_YAMLHParams):
                 x[k] = int(v)
             if isinstance(v, ry.scalarint.ScalarInt):
                 x[k] = int(v)
-            if isinstance(v, ry.scalarbool.ScalarBool):
+            if isinstance(v, ry.scalarbool.ScalarBoolean):
                 x[k] = bool(v)
         
     

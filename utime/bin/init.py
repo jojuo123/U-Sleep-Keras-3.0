@@ -59,6 +59,7 @@ def copy_yaml_and_set_data_dirs(in_path, out_path, data_dir=None):
                            for this project.
     """
     from utime.hyperparameters import YAMLHParams
+    print(in_path, out_path)
     hparams = YAMLHParams(in_path, no_version_control=True)
 
     # Set values in parameter file and save to new location

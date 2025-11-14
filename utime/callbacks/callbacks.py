@@ -118,10 +118,13 @@ class Validation(Callback):
                 # Run all metrics
                 for metric, name in zip(metrics, metrics_names):
                     # res = tf.reduce_mean(metric(y, pred))
-                    res = keras.ops.mean(metric(y, pred))
-                    if hasattr(pred, "numpy"):
-                        res = res.numpy()
-                    per_study_metrics[name].append(res)
+                    res = metric(y, pred)
+
+                    # res = keras.ops.mean(metric(y, pred))
+                    # if hasattr(res, "numpy"):
+                    #     res = res.numpy()
+                    for n, r in self._extract_value(res, name):
+                        per_study_metrics[n].append(r)
                     if getattr(metric, "stateful", False):
                         if hasattr(metric, "reset_states"):
                             metric.reset_states()
@@ -130,10 +133,25 @@ class Validation(Callback):
 
             # Compute mean metrics for the dataset
             metrics_results[id_] = {}
-            for metric, name in zip(metrics, metrics_names):
+            # for metric, name in zip(metrics, metrics_names):
+            #     metrics_results[id_][name] = np.mean(per_study_metrics[name])
+            for name in per_study_metrics.keys():
                 metrics_results[id_][name] = np.mean(per_study_metrics[name])
             self.model.reset_metrics()
         return true_pos, relevant, selected, metrics_results
+    
+    def _extract_value(self, res, name):
+        if isinstance(res, dict):
+            for k, v in res.items():
+                r = keras.ops.mean(v)
+                if hasattr(v, 'numpy'):
+                    r = r.numpy()
+                yield k, r
+        else:
+            res = keras.ops.mean(res)
+            if hasattr(res, "numpy"):
+                res = res.numpy()
+            yield name, res
 
     @staticmethod
     def _compute_dice(tp, rel, sel):

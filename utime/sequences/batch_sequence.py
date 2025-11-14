@@ -363,8 +363,8 @@ class BatchSequence(BaseSequence):
             else:
                 raise MarginError("Margin error with "
                                   "'allow_shift_at_border=False'") from e
-        Xs, ys = sleep_study.get_periods_by_idx(start_idx=period_idx-margin,
-                                                n_periods=margin*2+1)
+        Xs, ys = sleep_study.get_periods_by_idx(start_idx=int(period_idx-margin),
+                                                n_periods=int(margin*2+1))
         if return_shifted_idx:
             return Xs, ys, period_idx
         else:

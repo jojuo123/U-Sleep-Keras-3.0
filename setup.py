@@ -23,7 +23,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Mathias Perslev',
     author_email='map@di.ku.dk',
-    url='https://github.com/perslev/U-Time',
+    url='https://github.com/jojuo123/U-Sleep-Keras-3.0.git',
     license="LICENSE.txt",
     packages=find_packages(),
     package_dir={'utime':

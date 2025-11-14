@@ -143,7 +143,7 @@ class BalancedRandomBatchSequence(BatchSequence):
                     # Get the period index of a randomly sampled class
                     # (according to sample_prob distribution) within the
                     # SleepStudy pair
-                    idx = np.random.choice(class_inds, 1)[0]
+                    idx = int(np.random.choice(class_inds, 1)[0])
                     if self.margin > 0:
                         # Shift the idx randomly within the window
                         idx += np.random.randint(-self.margin, self.margin+1)
