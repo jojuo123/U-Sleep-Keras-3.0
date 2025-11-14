@@ -2,3 +2,5 @@ build/
 demo/
 venv/
 utime.egg-info/
+.eggs/
+.DS_Store
