@@ -6,7 +6,7 @@ training the model given a set of parameters and (non-initialized) callbacks.
 """
 
 import logging
-import tensorflow as tf
+# import tensorflow as tf
 import keras
 import os
 from utime.callbacks import init_callback_objects, remove_validation_callbacks
@@ -184,11 +184,11 @@ class Trainer(object):
 
         # Wrap generator in TF Dataset and disable auto shard
         # TODO: Remove to only use Keras PyDataset/Sequence
-        dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
-        train = tf.data.Dataset.from_generator(train, dtypes, shapes)
-        options = tf.data.Options()
-        options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
-        train = train.with_options(options)
+        # dtypes, shapes = list(zip(*map(lambda x: (x.dtype, x.shape), train[0])))
+        # train = tf.data.Dataset.from_generator(train, dtypes, shapes)
+        # options = tf.data.Options()
+        # options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+        # train = train.with_options(options)
         # print(self.model.dtype)
         # Fit the model
         self.model.fit(
