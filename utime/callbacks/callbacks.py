@@ -47,6 +47,7 @@ class Validation(Callback):
         self.print_round = 3
         self.log_round = 4
         self._supports_tf_logs = True
+        self.metrics_names = None
 
     def _compute_counts(self, pred, true):
         # Argmax and CM elements
@@ -137,6 +138,8 @@ class Validation(Callback):
             #     metrics_results[id_][name] = np.mean(per_study_metrics[name])
             for name in per_study_metrics.keys():
                 metrics_results[id_][name] = np.mean(per_study_metrics[name])
+            if self.metrics_names is None:
+                self.metrics_names = list(per_study_metrics.keys())
             self.model.reset_metrics()
         return true_pos, relevant, selected, metrics_results
     
@@ -211,6 +214,7 @@ class Validation(Callback):
     def on_epoch_end(self, epoch, logs=None):
         # Predict and get CM
         TPs, relevant, selected, metrics = self.predict()
+        
         for id_ in self.IDs:
             tp, rel, sel = TPs[id_], relevant[id_], selected[id_]
             precisions, recalls, dices = self._compute_dice(tp=tp, sel=sel, rel=rel)
@@ -236,7 +240,7 @@ class Validation(Callback):
             # Print cross-dataset mean values
             logger.info(highlighted(f"[ALL DATASETS] Means Across Classes for Epoch {epoch}"))
             fetch = ("val_dice", "val_precision", "val_recall")
-            m_fetch = tuple(["val_" + s for s in self.model.metrics_names])
+            m_fetch = tuple(["val_" + s for s in self.metrics_names])
             to_print = {}
             for f in fetch + m_fetch:
                 scores = [logs["%s_%s" % (name, f)] for name in self.IDs]
