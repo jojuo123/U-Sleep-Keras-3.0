@@ -1,6 +1,7 @@
 # import tensorflow as tf
 from keras import ops
 import keras
+from utime.evaluation.utils import wrapper
 
 
 def _get_shapes_and_one_hot(y_true, y_pred):
@@ -52,3 +53,20 @@ class SparseDiceLoss(keras.losses.Loss):
 
     def call(self, y_true, y_pred):
         return sparse_dice_loss(y_true, y_pred, smooth=self.smooth)
+
+class IgnoreOutOfBoundSparseCategoricalCrossEntropy(keras.losses.SparseCategoricalCrossentropy):
+    
+    def __init__(self, from_logits=False, ignore_class=None, reduction="sum_over_batch_size", axis=-1, name="sparse_categorical_crossentropy", dtype=None):
+        super().__init__(from_logits, ignore_class, reduction, axis, name, dtype)
+    
+    def call(self, y_true, y_pred):
+        return wrapper(super().call, y_true, y_pred)
+    
+class IgnoreOutOfBoundSparseCategoricalAccuracy(keras.metrics.MeanMetricWrapper):
+    def __init__(self, name="sparse_categorical_accuracy_ignore", dtype=None):
+        super().__init__(fn=lambda y_true, y_pred: wrapper(keras.metrics.sparse_categorical_accuracy, y_true, y_pred), name=name, dtype=dtype)
+        # Metric should be maximized during optimization.
+        self._direction = "up"
+
+    def get_config(self):
+        return {"name": self.name, "dtype": self.dtype}

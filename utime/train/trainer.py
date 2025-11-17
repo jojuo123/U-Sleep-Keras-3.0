@@ -13,6 +13,7 @@ from utime.callbacks import init_callback_objects, remove_validation_callbacks
 from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption
 from psg_utils.utils import ensure_list_or_tuple
 from utime.train.utils import ensure_sparse, init_losses, init_metrics, init_optimizer, get_steps
+from utime.evaluation import IgnoreOutOfBoundSparseCategoricalAccuracy, IgnoreOutOfBoundSparseCategoricalCrossEntropy
 
 logger = logging.getLogger(__name__)
 
@@ -58,17 +59,20 @@ class Trainer(object):
 
         # Initialize optimizer, loss(es) and metric(s) from tf.keras, tf addons or utime.evaluation
         optimizer = init_optimizer(optimizer, **optimizer_kwargs)
-        losses = init_losses(losses, reduction, ignore_out_of_bounds_classes, **loss_kwargs)
-        metrics = init_metrics(metrics, ignore_out_of_bounds_classes, **metric_kwargs)
+        # losses = init_losses(losses, reduction, ignore_out_of_bounds_classes, **loss_kwargs)
+        # metrics = init_metrics(metrics, ignore_out_of_bounds_classes, **metric_kwargs)
 
         # Compile the model
         # print(optimizer)
         # assert isinstance(optimizer, keras.optimizers.Optimizer)
         
-        self.model.compile(optimizer=optimizer, loss=losses, metrics=metrics, auto_scale_loss=False)
+        # self.model.compile(optimizer=optimizer, loss=losses, metrics=metrics, auto_scale_loss=False)
+       
+        self.model.compile(optimizer=optimizer, loss=[IgnoreOutOfBoundSparseCategoricalCrossEntropy()], metrics=[IgnoreOutOfBoundSparseCategoricalAccuracy()], auto_scale_loss=False)
         logger.info(f"\nOptimizer:   {optimizer}\n"
                     f"Loss funcs:  {losses}\n"
-                    f"Metrics:     {metrics}")
+                    f"Metrics:     {metrics}\n"
+                    f"Backend: {keras.config.backend()}")
         return self
 
     def fit(self, batch_size, **fit_kwargs):
@@ -117,11 +121,13 @@ class Trainer(object):
                 except RuntimeError as e:
                     if 'out of memory' in str(e):
                         batch_size -= 2
-                    batch_size -= 2
-                    logger.error(f"[MEMORY ERROR] Reducing batch size by 2 (now {batch_size})")
-                    if batch_size < 1:
-                        logger.error("[ERROR] Batch size negative or zero! Stopping training.")
-                        fitting = False
+
+                        logger.error(f"[MEMORY ERROR] Reducing batch size by 2 (now {batch_size})")
+                        if batch_size < 1:
+                            logger.error("[ERROR] Batch size negative or zero! Stopping training.")
+                            fitting = False
+                    else:
+                        raise e
                 except KeyboardInterrupt:
                     fitting = False
                 except Exception as e:

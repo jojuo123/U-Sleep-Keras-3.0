@@ -39,6 +39,22 @@ def ignore_out_of_bounds_classes_wrapper(func):
                 f"i.e. when model outputs values in [0, 1, 2, 3, 4]).")
     return wrapper
 
+def wrapper(func, true, pred, **kwargs):
+    n_pred_classes = pred.shape[-1]
+    true = ops.reshape(true, [-1])
+    pred = ops.reshape(pred, [-1, n_pred_classes])
+    mask = ops.where(ops.logical_and(
+                        ops.greater_equal(true, 0),
+                        ops.less(true, n_pred_classes)
+                    ),
+                    ops.ones_like(true),
+                    ops.zeros_like(true))
+    mask = ops.cast(mask, bool)
+    # true = ops.boolean_mask(true, mask, axis=0)
+    # pred = ops.boolean_mask(pred, mask, axis=0)
+    true = true[mask]
+    pred = pred[mask]
+    return func(true, pred, **kwargs)
 
 def _get_tp_rel_sel_from_cm(cm):
     tp = np.diagonal(cm)

@@ -148,12 +148,18 @@ class Validation(Callback):
             for k, v in res.items():
                 r = keras.ops.mean(v)
                 if hasattr(v, 'numpy'):
-                    r = r.numpy()
+                    try:
+                        res = res.numpy()
+                    except:
+                        res = res.cpu().detach().numpy()
                 yield k, r
         else:
             res = keras.ops.mean(res)
             if hasattr(res, "numpy"):
-                res = res.numpy()
+                try:
+                    res = res.numpy()
+                except:
+                    res = res.cpu().detach().numpy()
             yield name, res
 
     @staticmethod
