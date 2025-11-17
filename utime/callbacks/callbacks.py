@@ -149,9 +149,9 @@ class Validation(Callback):
                 r = keras.ops.mean(v)
                 if hasattr(v, 'numpy'):
                     try:
-                        res = res.numpy()
+                        r = r.numpy()
                     except:
-                        res = res.cpu().detach().numpy()
+                        r = r.cpu().detach().numpy()
                 yield k, r
         else:
             res = keras.ops.mean(res)
