@@ -1,0 +1,4 @@
+
+2026/04/14 15:14:35 | INFO | Args dump: {'file_regex': '${local_path}/resources/chat/polysomnography/annotations-events-nsrr/*/*.xml', 'out_dir': '${local_path}/processed/chat/', 'fill_blanks': None, 'extract_func': None, 'remove_offset': False, 'correct_zero_durations': None, 'overwrite': False, 'log_file': 'hyp_extraction_log'}
+
+2026/04/14 15:14:35 | INFO | Found 0 files matching glob statement

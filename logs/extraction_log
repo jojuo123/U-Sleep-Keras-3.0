@@ -1,0 +1,18 @@
+
+2026/04/14 15:33:46 | INFO | Args dump: {'file_regex': '/home/lht444/erda/sleep-data/resources/chat/polysomnography/edfs/*/*.edf', 'out_dir': '/home/lht444/erda/sleep-data/resources/processed/chat/', 'channels': ['F3-M2', 'F4-M1', 'C3-M2', 'C4-M1', 'T3-M2', 'T4-M1', 'O1-M2', 'O2-M1', 'E1-M2', 'E2-M1'], 'rename_channels': None, 'resample': 128, 'use_dir_names': False, 'trim_leading_seconds_dict': None, 'overwrite': True, 'continue_': False, 'log_file': 'extraction_log'}
+
+2026/04/14 15:33:47 | INFO | Found 1639 files matching glob statement
+
+2026/04/14 15:33:47 | INFO | Extracting channels ['F3-M2', 'F4-M1', 'C3-M2', 'C4-M1', 'T3-M2', 'T4-M1', 'O1-M2', 'O2-M1', 'E1-M2', 'E2-M1']
+Saving .h5 files to '/home/lht444/erda/sleep-data/resources/processed/chat'
+Re-sampling: 128
+-*--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*-
+
+2026/04/14 15:33:47 | INFO | 
+------------------
+[*] 1/1639 Processing chat-baseline-nonrandomized-300092
+
+2026/04/14 15:33:49 | INFO | 
+[*] Channels in file: E1-None, E2-None, ECG1-None, ECG2-None, F7-None, F3-None, FZ-None, F4-None, ECG3-None, M1-None, T3-None, C3-None, RCHIN-None, C4-None, T4-None, M2-None, RLEG1-None, RLEG2-None, LCHIN-None, LLEG1-None, LLEG2-None, O1-None, CCHIN-None, O2-None, SNORE-None, AIRFLOW-None, CANNULAFLOW-None, X4-Y4, CHEST-None, ABD-None, SUM-None, SAO2-None, PULSE-None, MASIMO-None, ETCO2-None, PLETHMASIMO-None, CAP-None, DHR-None
+[*] Output channels: F3-M2, F4-M1, C3-M2, C4-M1, T3-M2, T4-M1, O1-M2, O2-M1, E1-M2, E2-M1
+[*] Channels to load: C4-None, E2-None, M1-None, T3-None, E1-None, C3-None, F3-None, T4-None, M2-None, O2-None, O1-None, F4-None
