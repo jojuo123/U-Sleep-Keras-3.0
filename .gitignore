@@ -1,8 +1,16 @@
 build/
 demo/
 venv/
+new_venv/
 utime.egg-info/
 .eggs/
 .DS_Store
 test.py
 __pycache__
+logs
+logs/
+logs-*
+
+process.sh
+read_data.ipynb
+*.out
