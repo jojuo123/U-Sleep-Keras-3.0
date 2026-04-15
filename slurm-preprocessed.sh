@@ -12,6 +12,8 @@
 # From here on, we can start our program
 
 ./mount_erda.sh
+module load cuda/12.8
+module load python/3.10.18
 source /home/lht444/python-venv/usleep-keras/bin/activate
-ls
+./processed-chat-cfs.sh
 ./unmount_erda.sh

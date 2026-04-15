@@ -341,6 +341,7 @@ def run(args):
 
     # Shuffle and split the files into CV parts
     random.shuffle(subject_dirs)
+    subject_dirs = np.array(subject_dirs, dtype='object')
     splits = np.array_split(subject_dirs, n_splits)
 
     # Prepare dataframe to store counts
