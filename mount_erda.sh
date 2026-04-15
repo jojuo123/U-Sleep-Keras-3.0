@@ -5,11 +5,11 @@ erdadir=' '
 mnt=erda2/
 if [ -f "$key" ]
 then
-    chmod +rx $HOME
+    chmod +rwx $HOME
     mkdir -p ${mnt}
     sshfs ${user}@io.erda.dk:${erdadir} ${mnt} -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3 -o IdentityFile=${key}
-    chmod -rx $HOME
-    chmod u+rx $HOME
+    chmod -rwx $HOME
+    chmod u+rwx $HOME
 else
     echo "'${key}' is not an ssh key"
 fi
