@@ -3,7 +3,7 @@
 #SBATCH --job-name=U-Sleep-process
 #SBATCH --nodes=1
 #number of independent tasks we are going to start in this script
-#SBATCH --ntasks=5
+#SBATCH --ntasks=1
 #number of cpus we want to allocate for each program
 #SBATCH --cpus-per-task=2
 #We expect that our program should not run longer than 2 days
@@ -17,10 +17,12 @@
 module load cuda/12.8
 module load python/3.10.18
 source /home/lht444/python-venv/usleep-keras/bin/activate
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-abc-ccshs.sh &
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-dcsm-hpap.sh &
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-mros-phys.sh &
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-sedf.sh &
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-shhs-sof.sh
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-abc-ccshs.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-dcsm-hpap.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-mros-phys.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-sedf.sh &
+srun -N 1 --ntasks=1 -c2 --exclusive ./processed-shhs-sof.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-mesa.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-cfs.sh
 wait
 ./unmount_erda.sh

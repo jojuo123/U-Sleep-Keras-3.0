@@ -320,10 +320,11 @@ def run(args):
         raise ValueError("Should not set --test_fraction with --CV > 1")
 
     # Assert suitable folders
-    assert_dir_structure(data_dir, out_dir)
+    # assert_dir_structure(data_dir, out_dir)
 
     # Get subject dirs
     subject_dirs = glob(os.path.join(data_dir, args.subject_dir_pattern))
+    # print(subject_dirs)
 
     # Create sub-folders
     create_view_folders(out_dir, n_splits)

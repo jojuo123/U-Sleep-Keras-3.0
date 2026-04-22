@@ -210,3 +210,62 @@ class Trainer(object):
             shuffle=False,  # Determined by the chosen Sequence class
             verbose=verbose
         )
+    
+    def _fit_torch(self,
+             train,
+             val,
+             batch_size,
+             n_epochs,
+             callbacks,
+             train_samples_per_epoch,
+             max_val_studies_per_dataset,
+             verbose=1,
+             init_epoch=0,
+             **unused):
+        """
+        Args:
+            train: (Sequence)       The training Sequence object
+            val    (Sequence, None) The validation Sequence object or None if no
+                                    validation is to be performed
+            batch_size: (int)       The batch size to use for training
+            n_epochs: (int)         Number of epochs to train for
+            callbacks: (list)       List of uninitialized callback kwargs.
+            train_samples_per_epoch: (int) Number of training samples to sample
+                                           before an epoch is determined over.
+            verbose: (int/bool)     Verbosity level passed to keras.fit_generator
+            init_epoch: (int)       The initial epoch
+            use_multiprocessing: (bool) Whether to use multiprocessing instead
+                                        of multithreading.
+        """
+        train.batch_size = batch_size
+        train_steps = get_steps(train_samples_per_epoch, train)
+        logger.info(f"Using {train_steps} steps per train epoch")
+
+        if val is None:
+            # No validation to be performed, remove callbacks that might need
+            # validation data to function properly
+            remove_validation_callbacks(callbacks)
+        else:
+            val.batch_size = batch_size
+            # Add validation callback
+            # Important: Should be first in callbacks list as other CBs may
+            # depend on the validation metrics/loss
+            callbacks = [Validation(val, max_val_studies_per_dataset), MeanReduceLogArrays()] + callbacks
+
+        # Add various callbacks for plotting learning curves etc.
+        callbacks.append(LearningCurve())
+        # callbacks.append(MemoryConsumption(max_gib=45))
+        # callbacks.append(CarbonUsageTracking(epochs=n_epochs, add_to_logs=False))
+
+        # Get initialized callback objects
+        callbacks = [PrintDividerLine()] + callbacks + [PrintDividerLine()]
+        callbacks, cb_dict = init_callback_objects(callbacks)
+        from utime.train.torch_utils import setup_device, cleanup, per_device_launch_fn, prepare_dataloader
+        
+        
+        
+        
+        
+        
+        
+        
