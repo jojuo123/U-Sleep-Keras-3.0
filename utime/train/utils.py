@@ -3,6 +3,7 @@ import numpy as np
 # import tensorflow
 import keras
 from typing import List
+import os
 # from tensorflow_addons import optimizers as addon_optimizers
 # from tensorflow_addons import activations as addon_activations
 # from tensorflow_addons import losses as addon_losses
@@ -163,18 +164,23 @@ def init_metrics(metric_string_list, ignore_out_of_bounds_classes=False, **kwarg
                                    **kwargs)
 
 
-def init_optimizer(optimizer_string, **kwargs):
+def init_optimizer(optimizer_string, env='keras', **kwargs):
     """
     Same as 'init_losses', but for optimizers.
     Please refer to the 'init_losses' docstring.
     """
-    for k, v in kwargs.items():
-        print(k, v)
-        print(type(v))
-    optimizer = _get_classes_or_funcs(
-        optimizer_string,
-        func_modules=[keras.optimizers]
-    )
+    assert env in ['keras', 'torch'], 'Environment must be keras or torch'
+    if env == 'torch':
+        import torch
+        optimizer = _get_classes_or_funcs(
+            optimizer_string,
+            func_modules=[torch.optim]
+        )
+    else:
+        optimizer = _get_classes_or_funcs(
+            optimizer_string,
+            func_modules=[keras.optimizers]
+        )
     assert len(optimizer) == 1, f'Received unexpected number of optimizers ({len(optimizer)}, expected 1)'
     return optimizer[0](**kwargs)
 
