@@ -163,6 +163,7 @@ def get_dataset_splits_from_hparams(hparams, splits_to_load, id=""):
         hparams[data_key]["identifier"] = new_id
 
         # Load either a standard SleepStudyDataset or from the SingleH5Dataset
+        # print(hparams[data_key])
         dataset = SleepStudyDataset(**hparams[data_key],
                                     annotation_dict=ann_dict)
         datasets.append(dataset)

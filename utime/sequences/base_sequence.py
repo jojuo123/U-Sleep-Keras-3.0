@@ -41,7 +41,7 @@ class _BaseSequence(Sequence):
     current process if not done already.
     """
     def __init__(self):
-        super().__init__(workers=3, use_multiprocessing=False, max_queue_size=10) #TODO: do inheritance here 
+        super().__init__(workers=1, use_multiprocessing=False, max_queue_size=10) #TODO: do inheritance here 
 
         # A dictionary mapping process names to whether the process has been
         # seeded

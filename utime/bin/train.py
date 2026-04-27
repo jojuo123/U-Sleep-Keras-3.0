@@ -262,7 +262,19 @@ def run(args):
     
     # import os
     try:
-        gpus = keras.distribution.list_devices(device_type='gpu')
+        # gpus = keras.distribution.list_devices(device_type='gpu')
+        backend = keras.backend.backend()
+        logger.info(f'Using backend: {backend}')
+        if backend == 'torch':
+            import torch
+            gpus = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+        elif backend == 'tensorflow':
+            import tensorflow as tf
+            gpus = tf.config.list_physical_devices('GPU')
+        else:
+            gpus = []
+            
+        logger.info(f"Num GPUs: {len(gpus)}")
         
         if len(gpus) <= 1:
             model = init_model(hparams["build"], clear_previous=False)
@@ -338,13 +350,16 @@ def run(args):
                             train_samples_per_epoch=samples_pr_epoch,
                             max_val_studies_per_dataset=args.max_val_studies_per_dataset,
                             **hparams["fit"])
-        
+    except Exception as e:
+        print(e)
     finally:
         # Stop loading processes and threads if existing
         if train_study_loader:
             train_study_loader.stop()
         if val_study_loader:
             val_study_loader.stop()
+        
+        print('Done stopping loader!')
 
         # Save weights to project_dir/model/{final_weights_file_name}.h5
         # Note: these weights are rarely used, as a checkpoint callback also saves

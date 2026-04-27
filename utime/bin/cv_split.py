@@ -12,6 +12,7 @@ import argparse
 import re
 import pandas as pd
 from glob import glob
+import shutil
 from utime.utils import create_folders
 from utime.utils.scriptutils import add_logging_file_handler
 
@@ -90,12 +91,17 @@ def get_argparser():
     return parser
 
 
-def assert_dir_structure(data_dir, out_dir):
+def assert_dir_structure(data_dir, out_dir, overwrite):
     """ Asserts that the data_dir exists and the out_dir does not """
     if not os.path.exists(data_dir):
         raise OSError("Invalid data directory '%s'. Does not exist." % data_dir)
     if os.path.exists(out_dir):
-        raise OSError("Output directory at '%s' already exists." % out_dir)
+        if overwrite:
+            logger.warning("Output directory at '%s' already exists. Removing existing directory" % out_dir)
+            shutil.rmtree(out_dir)
+        else:
+            raise OSError("Output directory at '%s' already exists. Use overwrite to automatically remove the directory" % out_dir)
+        
 
 
 def create_view_folders(out_dir, n_splits):
@@ -166,7 +172,7 @@ def _add_to_file_list_fallback(rel_file_path,
 
     # Get path to the list of files
     list_file_path = os.path.join(folder, fname)
-
+    
     with open(list_file_path, "a") as out_f:
         out_f.write(abs_file_path + "\n")
 
@@ -193,10 +199,16 @@ def pair_by_names(files, subject_matching_regex=None):
         A list of tuples of paired filenames
     """
     from collections import defaultdict
-    regex = re.compile(subject_matching_regex)
+    
     if subject_matching_regex is not None:
+        regex = re.compile(subject_matching_regex)
         names = []
         for f_path in files:
+            # files_inside = os.listdir(f_path)
+            # # print(os.path.split(f_path)[-1])
+            # if len([i for i in files_inside if i.endswith('.h5')]) != 1 or len([i for i in files_inside if i.endswith('.ids')]) != 1:
+            #     print(f_path)
+            #     continue
             f_path = os.path.split(f_path)[-1]  # Split just in case full paths
             matches = re.findall(regex, f_path)
             if len(matches) != 1:
@@ -207,7 +219,14 @@ def pair_by_names(files, subject_matching_regex=None):
                                                       matches, f_path))
             names.append(matches[0])
     else:
+        # names = []
+        # for f_path in files:
+        #     files_inside = os.listdir(f_path)
+        #     if len([i for i in files_inside if i.endswith('.h5')]) != 1 or len([i for i in files_inside if i.endswith('.ids')]) != 1:
+        #         print(f_path)
+        #         continue
         names = [os.path.splitext(os.path.split(i)[-1])[0] for i in files]
+            # names.append(os.path.splitext(os.path.split(f_path)[-1])[0])
     inds = defaultdict(list)
     for i, item in enumerate(names):
         inds[item].append(i)
@@ -234,6 +253,7 @@ def get_split_sizes(subject_dirs, n_splits, args):
         split.
     """
     n_total = len(subject_dirs)
+    print(n_total)
     if n_splits > 1:
         n_test = int(np.ceil(n_total / n_splits))
     else:
@@ -320,18 +340,26 @@ def run(args):
         raise ValueError("Should not set --test_fraction with --CV > 1")
 
     # Assert suitable folders
-    # assert_dir_structure(data_dir, out_dir)
+    assert_dir_structure(data_dir, out_dir, args.overwrite)
 
     # Get subject dirs
     subject_dirs = glob(os.path.join(data_dir, args.subject_dir_pattern))
-    # print(subject_dirs)
 
+    # Filter subject dirs, only one with both labels and edfs are kept
+    tmp_subject_dirs = []
+    for f_path in subject_dirs:
+        files_inside = os.listdir(f_path)
+        if len([i for i in files_inside if i.endswith('.h5')]) != 1 or len([i for i in files_inside if i.endswith('.ids')]) != 1:
+            continue
+        tmp_subject_dirs.append(f_path)
+    subject_dirs = tmp_subject_dirs
+    
     # Create sub-folders
     create_view_folders(out_dir, n_splits)
 
-    if args.subject_matching_regex:
-        logger.info(f"OBS: Pairing files based on regex {args.subject_matching_regex}")
-        subject_dirs = pair_by_names(subject_dirs, args.subject_matching_regex)
+    # if args.subject_matching_regex:
+    logger.info(f"OBS: Pairing files based on regex {args.subject_matching_regex}")
+    subject_dirs = pair_by_names(subject_dirs, args.subject_matching_regex)
 
     if n_splits > len(subject_dirs):
         raise ValueError(f"CV ({n_splits}) cannot be larger than number of "

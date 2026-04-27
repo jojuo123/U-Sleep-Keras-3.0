@@ -56,7 +56,7 @@ def get_parser():
     parser.add_argument("--seed", default=None, type=int,
                         help="Run this script with numpy, random and keras RNGs seeded "
                              "from integer --seed.")
-    parser.add_argument("--backend", default='tensorflow', type=str, choices=['tensorflow', 'torch'])
+    parser.add_argument("--backend", default='torch', type=str, choices=['tensorflow', 'torch'])
     return parser
 
 

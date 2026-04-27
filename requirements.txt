@@ -16,3 +16,4 @@ psg_utils>=0.1.6
 tensorflow~=2.16
 keras~=3.12.0
 yamlhparams>=0.2.0
+tensorboard

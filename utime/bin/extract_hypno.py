@@ -7,6 +7,7 @@ from pathlib import Path
 from psg_utils.io.hypnogram import extract_ids_from_hyp_file
 from psg_utils.hypnogram.utils import fill_hyp_gaps
 from utime.utils.scriptutils import add_logging_file_handler
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,8 @@ def get_argparser():
                              "output log file for this script. "
                              "Set to an empty string to not save any logs to file for this run. "
                              "Default is 'hyp_extraction_log'")
+    parser.add_argument("--nsrr", action="store_true",
+                        help="whether dataset is nsrr-based")
     return parser
 
 
@@ -77,7 +80,10 @@ def run(args):
         os.makedirs(out_dir)
     for i, file_ in enumerate(files):
         file_name = os.path.split(file_)[-1].split(".", 1)[0]
-        folder_name = os.path.split(os.path.split(file_)[0])[-1]
+        # if args.nsrr and os.path.exists(os.path.join(out_dir, file_name)):
+        #     shutil.rmtree(os.path.join(out_dir, file_name))
+        # folder_name = os.path.split(os.path.split(file_)[0])[-1]
+        folder_name = file_name.replace('-nsrr', '') if args.nsrr else os.path.split(os.path.split(file_)[0])[-1]
         out_dir_subject = os.path.join(out_dir, folder_name)
         out = os.path.join(out_dir_subject, file_name + ".ids")
         logger.info(f"{i+1}/{n_files} Processing {file_name}\n"
@@ -85,6 +91,7 @@ def run(args):
                     f"-- Out path   {out}")
         if not os.path.exists(out_dir_subject):
             os.mkdir(out_dir_subject)
+            logger.info('ERROR: found non-existing folder')
         if os.path.exists(out):
             if not args.overwrite:
                 continue

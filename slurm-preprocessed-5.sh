@@ -20,9 +20,13 @@ source /home/lht444/python-venv/usleep-keras/bin/activate
 # srun -N 1 --ntasks=1 -c2 --exclusive ./processed-abc-ccshs.sh &
 # srun -N 1 --ntasks=1 -c2 --exclusive ./processed-dcsm-hpap.sh &
 # srun -N 1 --ntasks=1 -c2 --exclusive ./processed-mros-phys.sh &
+# ut extract_hypno --file_regex './erda2/sleep-data/resources/phys/tr*/*-HYP.ids' --out_dir './erda2/sleep-data/resources/processed/phys/' --log_dir logs-phys --overwrite
+# ut cv_split --data_dir './erda2/sleep-data/resources/processed/mros/' --subject_dir_pattern 'mros*' --CV 1 --validation_fraction 0.10 --max_validation_subjects 50 --test_fraction 0.15 --max_test_subjects 100 --subject_matching_regex '.*?-.*?-(.*)' --log_dir logs-mros --file_list
 # srun -N 1 --ntasks=1 -c2 --exclusive ./processed-sedf.sh &
-srun -N 1 --ntasks=1 -c2 --exclusive ./processed-shhs-sof.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-shhs-sof.sh &
 # srun -N 1 --ntasks=1 -c2 --exclusive ./processed-mesa.sh &
-# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-cfs.sh
-wait
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-cfs.sh &
+# srun -N 1 --ntasks=1 -c2 --exclusive ./processed-chat-cfs.sh
+srun ./split_cv.sh
+# wait
 ./unmount_erda.sh

@@ -3,6 +3,7 @@ demo/
 venv/
 new_venv/
 utime.egg-info/
+u-sleep-keras3/
 .eggs/
 .DS_Store
 test.py

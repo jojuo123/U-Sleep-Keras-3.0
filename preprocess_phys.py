@@ -79,4 +79,4 @@ def preprocess_phys_hypnograms(dataset_folder_path):
         # print(len(s))
         SparseHypnogram(i, d, [Defaults.get_stage_string_to_class_int()[s_] for s_ in s], 30)
         to_ids(i, d, s, out_path)
-preprocess_phys_hypnograms('./demo/data/phys')
+preprocess_phys_hypnograms('./erda2/sleep-data/resources/phys')
