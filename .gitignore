@@ -20,3 +20,6 @@ process.sh
 read_data.ipynb
 *.out
 ${local_path}/
+
+test_extract.sh
+tmp.h5

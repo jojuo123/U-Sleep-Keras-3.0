@@ -299,7 +299,7 @@ def run(args):
                             max_val_studies_per_dataset=args.max_val_studies_per_dataset,
                             **hparams["fit"])
         
-        if os.environ['KERAS_BACKEND'] == 'tensorflow':
+        elif os.environ['KERAS_BACKEND'] == 'tensorflow':
             import tensorflow as tf
             num_gpus = find_and_set_gpus(args.num_gpus, args.force_gpus)
             assert len(gpus) == num_gpus, "Unexpected difference in number of visible and requested GPUs."
