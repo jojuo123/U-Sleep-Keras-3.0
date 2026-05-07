@@ -95,7 +95,8 @@ class Trainer(object):
         
         if os.environ['KERAS_BACKEND'] == 'tensorflow':
             from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
-        
+            logger.info("Using TensorFlow backend for training. GPU memory errors will be automatically handled by reducing batch size and restarting training.")
+            logger.info(f'Base class: {self.model.__bases__}')
             while fitting:
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)
@@ -114,6 +115,8 @@ class Trainer(object):
                     raise e
             logger.info("Training stopped.")
         elif os.environ['KERAS_BACKEND'] == 'torch':
+            logger.info("Using PyTorch backend for training. Note that GPU memory errors are not automatically handled in this case, so make sure to set an appropriate batch size to avoid out-of-memory errors.")
+            logger.info(f'Base class: {self.model.__bases__}')
             while fitting:
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)

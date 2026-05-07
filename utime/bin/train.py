@@ -224,6 +224,7 @@ def run(args):
         queue_type=train_queue_type,
         max_loaded_per_dataset=args.max_loaded_per_dataset,
         num_access_before_reload=args.num_access_before_reload,
+        # n_load_processes=None  # Only in effect with queue_type LimitationQueue, otherwise main process
         n_load_processes=1  # Only in effect with queue_type LimitationQueue, otherwise main process
                                # 'None' specifies to use 1) all SLURM visible CPUs (if set), else 2) cpu_count()
     )
@@ -287,6 +288,7 @@ def run(args):
                                     reduction='none',
                                 #   reduction=tf.keras.losses.Reduction.NONE,
                                     **hparams["fit"])
+
 
             # Fit the model on a number of samples as specified in args
             samples_pr_epoch = get_samples_per_epoch(train_seq, args.max_train_samples_per_epoch)
