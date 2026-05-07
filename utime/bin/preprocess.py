@@ -149,7 +149,7 @@ def run(args):
         os.mkdir(out_dir)
 
     with ThreadPoolExecutor(args.num_threads) as pool:
-        with h5py.File(args.out_path, "w") as h5_file:
+        with h5py.File(args.out_path, "a") as h5_file:
             for dataset, dataset_hparams in datasets:
                 # Create a new version of the dataset-specific hyperparameters
                 # that contain only the fields needed for pre-processed data
