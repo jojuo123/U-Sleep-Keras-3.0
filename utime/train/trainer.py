@@ -116,7 +116,8 @@ class Trainer(object):
             logger.info("Training stopped.")
         elif os.environ['KERAS_BACKEND'] == 'torch':
             logger.info("Using PyTorch backend for training. Note that GPU memory errors are not automatically handled in this case, so make sure to set an appropriate batch size to avoid out-of-memory errors.")
-            logger.info(f'Base class: {self.model.__bases__}')
+            import inspect
+            # logger.info(f'Base class: {inspect.getmro(self.model.__class__)}')
             while fitting:
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)

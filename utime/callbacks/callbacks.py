@@ -104,8 +104,8 @@ class Validation(Callback):
 
                 with sleep_study_context as ss:
                     x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
-                    print('X type:', type(x), 'Y type:', type(y))
-                    pred = self.model.predict_on_batch(x)
+                    # print('X type:', type(x), 'Y type:', type(y))
+                    pred = self.model.predict_on_batch([x])
 
                 # Compute counts
                 if hasattr(pred, "numpy"):
