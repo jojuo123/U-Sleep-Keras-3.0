@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 from utime.sequences.base_sequence import _BaseSequence
-from psg_utils.errors import NotLoadedError
+from psg_utils.errors import NotLoadedError, ChannelNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -144,14 +144,33 @@ class MultiSequence(_BaseSequence):
 
         X, y = self.get_empty_batch_arrays()
         for i, sequence_idx in enumerate(sequences_idxs):
-            sequence = self.sequences[sequence_idx]
-            try:
-                # Currently only supported BalancedRandomBatchSequence
-                # and RandomBatchSequence. Try balanced first.
-                xx, yy = sequence.get_class_balanced_random_period()
-            except AttributeError:
-                # Fall back to RandomBatchSequence
-                xx, yy = sequence.get_random_period()
+            select_idx = sequence_idx
+            valid = False
+            while not valid:
+                sequence = self.sequences[select_idx]
+                try:
+                    # Currently only supported BalancedRandomBatchSequence
+                    # and RandomBatchSequence. Try balanced first.
+                    xx, yy = sequence.get_class_balanced_random_period()
+                except AttributeError:
+                    # Fall back to RandomBatchSequence
+                    xx, yy = sequence.get_random_period()
+                except ChannelNotFoundError:
+                    # If a channel was not found for this sequence, try another
+                    # sequence until we find one that works.
+                    select_idx = np.random.choice(self.sequences_idxs, size=1, replace=False, p=self.sample_prob)[0]
+                    logger.warning(f"ChannelNotFoundError for sequence '{sequence.identifier}' (idx {select_idx}). Trying another sequence (idx {select_idx}).")
+                    continue
+                valid = True
+            # try:
+            #     # Currently only supported BalancedRandomBatchSequence
+            #     # and RandomBatchSequence. Try balanced first.
+            #     xx, yy = sequence.get_class_balanced_random_period()
+            # except AttributeError:
+            #     # Fall back to RandomBatchSequence
+            #     xx, yy = sequence.get_random_period()
+            # except ChannelNotFoundError:
+                
             X[i] = xx
             y[i] = yy
         return self.sequences[0].process_batch(X, y)

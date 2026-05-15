@@ -3,8 +3,8 @@
 #SBATCH --job-name=U-Sleep-Keras3-train
 #SBATCH --nodes=1
 #number of independent tasks we are going to start in this script
-#SBATCH --ntasks=1 --cpus-per-task=8 --mem=64000M
-#SBATCH -p gpu --gres=gpu:1
+#SBATCH --ntasks=1 --cpus-per-task=8 --mem=40000M
+#SBATCH -p gpu --gres=gpu:a100:1
 #number of cpus we want to allocate for each program
 #We expect that our program should not run longer than 2 days
 #Note that a program will be killed once it exceeds this time!
@@ -20,6 +20,13 @@ module load python/3.10.18
 source /home/lht444/python-venv/usleep-keras/bin/activate
 pip install .
 cd u-sleep-keras3
-ut train --num_gpus 1 --max_loaded_per_dataset 40 --num_access_before_reload 32 --train_queue_type limitation --val_queue_type lazy --max_train_samples_per_epoch 1000000 --backend torch --overwrite
+# export PYTORCH_ALLOC_CONF=gc_threshold:0.6,segment_size_mb:16
+ut train --num_gpus 1 --preprocessed --max_train_samples_per_epoch 2000000 --backend torch --continue_training
 cd ..
+
+# cd test_scheduler
+# # export PYTORCH_ALLOC_CONF=gc_threshold:0.6,segment_size_mb:16
+# ut train --num_gpus 1 --preprocessed --max_train_samples_per_epoch 1000 --backend torch --overwrite
+# cd ..
+
 ./unmount_erda.sh

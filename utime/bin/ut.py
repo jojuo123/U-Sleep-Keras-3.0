@@ -6,9 +6,12 @@ Usage:
 ut [--help] script [script args]... [--seed]
 """
 
+import os
+
+# os.environ["PYTORCH_ALLOC_CONF"] = "gc_threshold:0.6,segment_size_mb:16"
+
 import logging
 import argparse
-import os
 import sys
 import importlib
 import pkgutil

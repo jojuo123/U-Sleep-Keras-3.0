@@ -24,12 +24,67 @@
 #     count_samples(root, dataset)
 
 import h5py
+from pathlib import Path
+
+
+def merge_hdf5_external(output_file, input_files):
+    """
+    Create a merged HDF5 file using external links.
+
+    Parameters
+    ----------
+    output_file : str
+        Path to merged HDF5 file.
+
+    input_files : list[str]
+        List of source HDF5 files.
+    """
+
+    output_path = Path(output_file)
+
+    with h5py.File(output_path, "w") as fout:
+
+        for input_file in input_files:
+            input_path = Path(input_file)
+
+            # Use relative path so merged file is portable
+            relative_path = input_path.relative_to(output_path.parent)
+
+            with h5py.File(input_path, "r") as fin:
+
+                for key in fin.keys():
+
+                    if key in fout:
+                        raise ValueError(
+                            f"Duplicate top-level key '{key}' "
+                            f"found in {input_file}"
+                        )
+
+                    # Create external link
+                    fout[key] = h5py.ExternalLink(
+                        str(relative_path),
+                        f"/{key}"
+                    )
+
+
+# Example usage
+# merge_hdf5_external(
+#     "merged.h5",
+#     [
+#         "file1.h5",
+#         "file2.h5",
+#         "file3.h5",
+#     ]
+# )
+
+# import h5py
 
 def preview_h5(name, obj):
-    if isinstance(obj, h5py.Dataset):
-        print(f"Dataset '{name}': {obj.shape}")
-    elif isinstance(obj, h5py.Group):
-        print(f"Group '{name}'")
+    if name.count('/') == 1:
+        if isinstance(obj, h5py.Dataset):
+            print(f"Dataset '{name}': {obj.shape}")
+        elif isinstance(obj, h5py.Group):
+            print(f"Group '{name}'")
 
 with h5py.File('/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5', 'r') as f:
     f.visititems(preview_h5)

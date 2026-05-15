@@ -10,10 +10,12 @@ import logging
 import keras
 import os
 from utime.callbacks import init_callback_objects, remove_validation_callbacks
-from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption
+from utime.callbacks import Validation, LearningCurve, MeanReduceLogArrays, PrintDividerLine, MemoryConsumption, ClearMemoryCB, GPUCheckCB
 from psg_utils.utils import ensure_list_or_tuple
 from utime.train.utils import ensure_sparse, init_losses, init_metrics, init_optimizer, get_steps
 from utime.evaluation import IgnoreOutOfBoundSparseCategoricalAccuracy, IgnoreOutOfBoundSparseCategoricalCrossEntropy
+from utime.utils.memory_utils import clear_memory, is_model_on_gpu
+from utime.train.scheduler.scheduler import init_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +60,12 @@ class Trainer(object):
             ensure_sparse(metrics+losses)
 
         # Initialize optimizer, loss(es) and metric(s) from tf.keras, tf addons or utime.evaluation
+        scheduler_kwargs = kwargs.get('scheduler_kwargs', {})
+        scheduler_name = kwargs.get('scheduler', None)
+        scheduler_dict = init_scheduler(scheduler_name, optimizer_kwargs.get('learning_rate', 1e-6), scheduler_kwargs)
+        self.scheduler_callback = scheduler_dict['scheduler_callback']
+        optimizer_kwargs['learning_rate'] = scheduler_dict['sheduler']
+        
         optimizer = init_optimizer(optimizer, **optimizer_kwargs)
         # losses = init_losses(losses, reduction, ignore_out_of_bounds_classes, **loss_kwargs)
         # metrics = init_metrics(metrics, ignore_out_of_bounds_classes, **metric_kwargs)
@@ -96,8 +104,8 @@ class Trainer(object):
         if os.environ['KERAS_BACKEND'] == 'tensorflow':
             from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
             logger.info("Using TensorFlow backend for training. GPU memory errors will be automatically handled by reducing batch size and restarting training.")
-            logger.info(f'Base class: {self.model.__bases__}')
             while fitting:
+                clear_memory()
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)
                     fitting = False
@@ -115,14 +123,17 @@ class Trainer(object):
                     raise e
             logger.info("Training stopped.")
         elif os.environ['KERAS_BACKEND'] == 'torch':
+            import torch
             logger.info("Using PyTorch backend for training. Note that GPU memory errors are not automatically handled in this case, so make sure to set an appropriate batch size to avoid out-of-memory errors.")
-            import inspect
+            # import inspect
             # logger.info(f'Base class: {inspect.getmro(self.model.__class__)}')
             while fitting:
+                clear_memory()
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)
                     fitting = False
                 except RuntimeError as e:
+                    logger.warning(str(e))
                     if 'out of memory' in str(e):
                         batch_size -= 2
 
@@ -189,8 +200,12 @@ class Trainer(object):
         # callbacks.append(CarbonUsageTracking(epochs=n_epochs, add_to_logs=False))
 
         # Get initialized callback objects
-        callbacks = [PrintDividerLine()] + callbacks + [PrintDividerLine()]
+        callbacks = [ClearMemoryCB(), PrintDividerLine()] + callbacks + [PrintDividerLine()]
+        if hasattr(self, 'scheduler_callback') and self.scheduler_callback is not None:
+            callbacks.append(self.scheduler_callback)
         callbacks, cb_dict = init_callback_objects(callbacks)
+        
+        logger.info(f"Model is on GPU: {is_model_on_gpu(self.model)}")
 
         # Wrap generator in TF Dataset and disable auto shard
         # TODO: Remove to only use Keras PyDataset/Sequence
@@ -214,57 +229,7 @@ class Trainer(object):
             shuffle=False,  # Determined by the chosen Sequence class
             verbose=verbose
         )
-    
-    def _fit_torch(self,
-             train,
-             val,
-             batch_size,
-             n_epochs,
-             callbacks,
-             train_samples_per_epoch,
-             max_val_studies_per_dataset,
-             verbose=1,
-             init_epoch=0,
-             **unused):
-        """
-        Args:
-            train: (Sequence)       The training Sequence object
-            val    (Sequence, None) The validation Sequence object or None if no
-                                    validation is to be performed
-            batch_size: (int)       The batch size to use for training
-            n_epochs: (int)         Number of epochs to train for
-            callbacks: (list)       List of uninitialized callback kwargs.
-            train_samples_per_epoch: (int) Number of training samples to sample
-                                           before an epoch is determined over.
-            verbose: (int/bool)     Verbosity level passed to keras.fit_generator
-            init_epoch: (int)       The initial epoch
-            use_multiprocessing: (bool) Whether to use multiprocessing instead
-                                        of multithreading.
-        """
-        train.batch_size = batch_size
-        train_steps = get_steps(train_samples_per_epoch, train)
-        logger.info(f"Using {train_steps} steps per train epoch")
 
-        if val is None:
-            # No validation to be performed, remove callbacks that might need
-            # validation data to function properly
-            remove_validation_callbacks(callbacks)
-        else:
-            val.batch_size = batch_size
-            # Add validation callback
-            # Important: Should be first in callbacks list as other CBs may
-            # depend on the validation metrics/loss
-            callbacks = [Validation(val, max_val_studies_per_dataset), MeanReduceLogArrays()] + callbacks
-
-        # Add various callbacks for plotting learning curves etc.
-        callbacks.append(LearningCurve())
-        # callbacks.append(MemoryConsumption(max_gib=45))
-        # callbacks.append(CarbonUsageTracking(epochs=n_epochs, add_to_logs=False))
-
-        # Get initialized callback objects
-        callbacks = [PrintDividerLine()] + callbacks + [PrintDividerLine()]
-        callbacks, cb_dict = init_callback_objects(callbacks)
-        from utime.train.torch_utils import setup_device, cleanup, per_device_launch_fn, prepare_dataloader
         
         
         

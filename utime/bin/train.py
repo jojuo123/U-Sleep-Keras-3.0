@@ -225,7 +225,7 @@ def run(args):
         max_loaded_per_dataset=args.max_loaded_per_dataset,
         num_access_before_reload=args.num_access_before_reload,
         # n_load_processes=None  # Only in effect with queue_type LimitationQueue, otherwise main process
-        n_load_processes=1  # Only in effect with queue_type LimitationQueue, otherwise main process
+        n_load_processes=None  # Only in effect with queue_type LimitationQueue, otherwise main process
                                # 'None' specifies to use 1) all SLURM visible CPUs (if set), else 2) cpu_count()
     )
     if val_datasets:
@@ -269,6 +269,8 @@ def run(args):
         if backend == 'torch':
             import torch
             gpus = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+            for i in range(torch.cuda.device_count()):
+                logger.info(f"GPU {i}: {torch.cuda.get_device_properties(i).name}")
         elif backend == 'tensorflow':
             import tensorflow as tf
             gpus = tf.config.list_physical_devices('GPU')
@@ -276,6 +278,7 @@ def run(args):
             gpus = []
             
         logger.info(f"Num GPUs: {len(gpus)}")
+        logger.info(f"GPUs: {gpus}")
         
         if len(gpus) <= 1:
             model = init_model(hparams["build"], clear_previous=False)

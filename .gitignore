@@ -4,6 +4,7 @@ venv/
 new_venv/
 utime.egg-info/
 u-sleep-keras3/
+test_scheduler/
 .eggs/
 .DS_Store
 test.py

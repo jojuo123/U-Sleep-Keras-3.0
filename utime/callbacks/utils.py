@@ -69,3 +69,4 @@ def remove_validation_callbacks(callbacks):
         if any(val_dependent_params):
             logger.info(f"Removing callback with parameters: {callback} (needs validation data)")
             callbacks.pop(i)
+

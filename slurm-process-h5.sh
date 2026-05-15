@@ -18,8 +18,9 @@
 module load cuda/12.8
 module load python/3.10.18
 source /home/lht444/python-venv/usleep-keras/bin/activate
-# cd u-sleep-keras3
-ut preprocess --out_path '/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5' --dataset_splits train_data val_data 
+# pip install .
+cd u-sleep-keras3
+ut preprocess --out_path '/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5' --dataset_splits train_data val_data --log_file 'preprocessing_5' 
 # python sanity_check.py
-# cd ..
+cd ..
 ./unmount_erda.sh

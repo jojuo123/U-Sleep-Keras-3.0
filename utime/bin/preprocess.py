@@ -135,13 +135,13 @@ def run(args):
                                             return_data_hparams=True)
 
     # Check if file exists, and overwrite if specified
-    if os.path.exists(args.out_path):
-        if args.overwrite:
-            os.remove(args.out_path)
-        else:
-            from sys import exit
-            logger.info(f"Out file at {args.out_path} exists, and --overwrite was not set")
-            exit(0)
+    # if os.path.exists(args.out_path):
+    #     if args.overwrite:
+    #         os.remove(args.out_path)
+    #     else:
+    #         from sys import exit
+    #         logger.info(f"Out file at {args.out_path} exists, and --overwrite was not set")
+    #         exit(0)
 
     # Create dataset hparams output directory
     out_dir = Defaults.get_pre_processed_data_configurations_dir(project_dir)

@@ -12,6 +12,8 @@ from utime.utils import highlighted
 from collections import defaultdict
 from datetime import timedelta, datetime
 from utime.utils.plotting import plot_all_training_curves
+from utime.utils.memory_utils import clear_memory, is_model_on_gpu
+from psg_utils.errors import ChannelNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +98,7 @@ class Validation(Callback):
             # Predict and evaluate on all studies
             per_study_metrics = defaultdict(list)
             for i, sleep_study_context in enumerate(study_iterator):
+
                 s = "   {}Validation subject: {}/{}".format(f"[{id_}] "
                                                             if id_ else "",
                                                             i+1,
@@ -103,9 +106,13 @@ class Validation(Callback):
                 print(s, end="\r", flush=True)
 
                 with sleep_study_context as ss:
-                    x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
-                    # print('X type:', type(x), 'Y type:', type(y))
-                    pred = self.model.predict_on_batch([x])
+                    try:
+                        x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
+                        # print('X type:', type(x), 'Y type:', type(y))
+                        pred = self.model.predict_on_batch([x])
+                    except ChannelNotFoundError:
+                        logger.warning(f"Channel not found for study {ss.identifier}. Skipping!")
+                        continue
 
                 # Compute counts
                 if hasattr(pred, "numpy"):
@@ -120,7 +127,7 @@ class Validation(Callback):
                 # Run all metrics
                 for metric, name in zip(metrics, metrics_names):
                     # res = tf.reduce_mean(metric(y, pred))
-                    res = metric(y, pred)
+                    res = metric(y, pred_numpy)
 
                     # res = keras.ops.mean(metric(y, pred))
                     # if hasattr(res, "numpy"):
@@ -132,6 +139,9 @@ class Validation(Callback):
                             metric.reset_states()
                         else:
                             metric.reset_state()
+                
+                del pred, x, y
+                clear_memory()
 
             # Compute mean metrics for the dataset
             metrics_results[id_] = {}
@@ -505,3 +515,45 @@ class PrintDividerLine(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         print("\n" + "-"*45 + "\n")
+        
+class ClearMemoryCB(Callback):
+    """
+    On epoch end, calls the 'clear_memory' function from utime.utils.memory_utils
+    to clear memory.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def on_batch_end(self, batch, logs=None):
+        clear_memory()
+    
+    def on_batch_begin(self, batch, logs=None):
+        clear_memory()
+    
+    def on_epoch_end(self, epoch, logs=None):
+        clear_memory()
+
+class GPUCheckCB(Callback):
+    """
+    On epoch end, checks GPU memory usage and logs it.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def on_epoch_end(self, epoch, logs=None):
+        mem_bytes = get_memory_usage()
+        mem_gib = round(mem_bytes / (1024 ** 3), 2)
+        logs['gpu_memory_usage_gib'] = mem_gib
+        logger.info(f"GPU memory usage at epoch end: {mem_gib} GiB")
+        checked = False
+        logger.info("Checking if model is on GPU...")
+        try:
+            # on_gpu = is_model_on_gpu(self.model)
+            for w in self.model.weights:
+                logger.info(f"Weight device: {w.name}, {w}, {w.__dict__}")
+            logger.info(f"Model on GPU: {on_gpu}")
+            checked = True
+        except Exception as e:
+            logger.warning(f"Could not check if model is on GPU. Reason: {e}")
+        if not checked:
+            logger.warning("Could not check if model is on GPU. See previous log for details.")
