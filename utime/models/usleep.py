@@ -428,3 +428,16 @@ class USleep(Model):
                     f"Input:             {self.input}\n"
                     f"Output:            {self.output}")
         self.summary()
+    
+    # def train_step(self, data):
+    #     x, y = data
+    #     logger.info(f"Input shape: {x.shape}, Target shape: {y.shape}")
+    #     logger.info(f"Input dtype: {x}, Target dtype: {y}")
+    #     logger.info(f"Device: {x.device}, {y.device}")
+    #     ret = super().train_step(data)
+    #     logger.info(f"Loss: {ret['loss']:.4f}")
+    #     trainable_weights = [v for v in self.trainable_weights]
+    #     for w in trainable_weights:
+    #         logger.info(f"Weight: {w.name}, device: {w.value.device}")
+    #     return ret
+        

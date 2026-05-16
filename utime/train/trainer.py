@@ -105,7 +105,7 @@ class Trainer(object):
             from tensorflow.python.framework.errors_impl import ResourceExhaustedError, InternalError #TODO: change to general case
             logger.info("Using TensorFlow backend for training. GPU memory errors will be automatically handled by reducing batch size and restarting training.")
             while fitting:
-                clear_memory()
+                clear_memory(session=True)
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)
                     fitting = False
@@ -128,7 +128,7 @@ class Trainer(object):
             # import inspect
             # logger.info(f'Base class: {inspect.getmro(self.model.__class__)}')
             while fitting:
-                clear_memory()
+                clear_memory(session=True)
                 try:
                     self._fit(batch_size=batch_size, **fit_kwargs)
                     fitting = False

@@ -3,7 +3,7 @@ import keras
 from keras import backend as K
 
 
-def clear_memory(model=None):
+def clear_memory(model=None, session=False):
     """
     Clear CPU/GPU memory depending on the active Keras backend.
 
@@ -30,24 +30,27 @@ def clear_memory(model=None):
     # TensorFlow backend
     if backend == "tensorflow":
         import tensorflow as tf
-
-        keras.backend.clear_session()
+        if session:
+            keras.backend.clear_session()
         gc.collect()
 
     # PyTorch backend
     elif backend == "torch":
         import torch
 
-        keras.backend.clear_session()
-        gc.collect()
-
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            torch.cuda.ipc_collect()
+        if session:
+            keras.backend.clear_session()
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.ipc_collect()
+        else:
+            gc.collect()
 
     # JAX backend
     elif backend == "jax":
-        keras.backend.clear_session()
+        if session:
+            keras.backend.clear_session()
         gc.collect()
 
         try:

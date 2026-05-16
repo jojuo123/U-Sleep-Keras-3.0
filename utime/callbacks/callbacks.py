@@ -525,13 +525,13 @@ class ClearMemoryCB(Callback):
         super().__init__()
 
     def on_batch_end(self, batch, logs=None):
-        clear_memory()
+        clear_memory(session=False)
     
     def on_batch_begin(self, batch, logs=None):
-        clear_memory()
+        clear_memory(session=False)
     
     def on_epoch_end(self, epoch, logs=None):
-        clear_memory()
+        clear_memory(session=True)
 
 class GPUCheckCB(Callback):
     """

@@ -15,12 +15,9 @@
 
 ./unmount_erda.sh
 ./mount_erda.sh
-module load cuda/12.8
-module load python/3.10.18
-source /home/lht444/python-venv/usleep-keras/bin/activate
+source /python-venv/usleep-keras3/bin/activate
 pip install .
 cd u-sleep-keras3
-# export PYTORCH_ALLOC_CONF=gc_threshold:0.6,segment_size_mb:16
 ut train --num_gpus 1 --preprocessed --max_train_samples_per_epoch 2000000 --backend torch --continue_training
 cd ..
 

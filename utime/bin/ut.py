@@ -60,6 +60,8 @@ def get_parser():
                         help="Run this script with numpy, random and keras RNGs seeded "
                              "from integer --seed.")
     parser.add_argument("--backend", default='torch', type=str, choices=['tensorflow', 'torch'])
+    parser.add_argument("--no_warnings", action="store_true",
+                        help="Disable all warnings. Overrides --log_level.")
     return parser
 
 
@@ -97,6 +99,8 @@ def entry_func():
     # This omits a range of (usually....) unimportant warning message.
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     logging.getLogger("tensorflow").setLevel(logging.ERROR)
+    if parsed.no_warnings:
+        logging.disable(logging.WARNING)
 
     script = parsed.script
     if parsed.seed is not None:
