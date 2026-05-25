@@ -121,6 +121,11 @@ def get_argparser():
     parser.add_argument("--train_on_val", action="store_true",
                         help="Include the validation set in the training set."
                              " Will force --no_val to be active.")
+    parser.add_argument("--n_processes", type=int, default=8, nargs="?",
+                        help="Number of processes to use for loading data if "
+                             "using a queue type with multiple processes. Only "
+                             "in effect if --train_queue_type or --val_queue_type"
+                             " is set to 'limitation'. Default is 0.")
     return parser
 
 
@@ -225,7 +230,7 @@ def run(args):
         max_loaded_per_dataset=args.max_loaded_per_dataset,
         num_access_before_reload=args.num_access_before_reload,
         # n_load_processes=None  # Only in effect with queue_type LimitationQueue, otherwise main process
-        n_load_processes=None  # Only in effect with queue_type LimitationQueue, otherwise main process
+        n_load_processes=None if args.n_processes == 0 else args.n_processes # Only in effect with queue_type LimitationQueue, otherwise main process
                                # 'None' specifies to use 1) all SLURM visible CPUs (if set), else 2) cpu_count()
     )
     if val_datasets:

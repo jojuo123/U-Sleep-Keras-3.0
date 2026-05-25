@@ -13,7 +13,7 @@ from collections import defaultdict
 from datetime import timedelta, datetime
 from utime.utils.plotting import plot_all_training_curves
 from utime.utils.memory_utils import clear_memory, is_model_on_gpu
-from psg_utils.errors import ChannelNotFoundError
+from psg_utils.errors import ChannelNotFoundError, CouldNotLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -110,8 +110,8 @@ class Validation(Callback):
                         x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
                         # print('X type:', type(x), 'Y type:', type(y))
                         pred = self.model.predict_on_batch([x])
-                    except ChannelNotFoundError:
-                        logger.warning(f"Channel not found for study {ss.identifier}. Skipping!")
+                    except (ChannelNotFoundError, CouldNotLoadError) as e:
+                        logger.warning(f"Error occurred for study {ss.identifier}: {e}. Skipping!")
                         continue
 
                 # Compute counts

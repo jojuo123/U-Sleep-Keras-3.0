@@ -88,6 +88,9 @@ def get_argparser():
                              "output log file for this script. "
                              "Set to an empty string to not save any logs to file for this run. "
                              "Default is None (no log file)")
+    parser.add_argument("--exclude_subjects_file", type=str, default=None,
+                        help="Path to a text file containing a list of subject identifiers to exclude from the splits. "
+                             "The subject identifiers should match the sub-strings in the file paths as matched by the 'subject_matching_regex' (if specified) or the full file name without extension (if 'subject_matching_regex' is not specified). One identifier per line.")
     return parser
 
 
@@ -345,6 +348,13 @@ def run(args):
     # Get subject dirs
     subject_dirs = glob(os.path.join(data_dir, args.subject_dir_pattern))
 
+    exclude_subjects = set()
+    if args.exclude_subjects_file:
+        with open(args.exclude_subjects_file, "r") as f:
+            for line in f:
+                exclude_subjects.add(line.strip())
+        logger.info(f"Excluding {len(exclude_subjects)} subjects from splits based on file {args.exclude_subjects_file}")
+    
     # Filter subject dirs, only one with both labels and edfs are kept
     tmp_subject_dirs = []
     for f_path in subject_dirs:
@@ -353,7 +363,11 @@ def run(args):
             continue
         tmp_subject_dirs.append(f_path)
     subject_dirs = tmp_subject_dirs
-    
+
+    # Exclude specified subjects
+    if exclude_subjects:
+        subject_dirs = [f_path for f_path in subject_dirs if not any(subject in f_path for subject in exclude_subjects)]
+
     # Create sub-folders
     create_view_folders(out_dir, n_splits)
 

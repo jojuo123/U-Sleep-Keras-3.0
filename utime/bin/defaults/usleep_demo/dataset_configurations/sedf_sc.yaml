@@ -1,19 +1,19 @@
 train_data:
-  data_dir: ./data/sedf_sc/views/fixed_split/train
+  data_dir: ./data/sedf_sc/views_local/fixed_split/train
   period_length: 30
   identifier: "TRAIN"
   psg_regex: .*?-PSG.edf
   hyp_regex: .*?-Hypnogram.edf
 
 val_data:
-  data_dir: ./data/sedf_sc/views/fixed_split/val
+  data_dir: ./data/sedf_sc/views_local/fixed_split/val
   period_length: 30
   identifier: "VAL"
   psg_regex: .*?-PSG.edf
   hyp_regex: .*?-Hypnogram.edf
 
 test_data:
-  data_dir: ./data/sedf_sc/views/fixed_split/test
+  data_dir: ./data/sedf_sc/views_local/fixed_split/test
   period_length: 30
   identifier: "TEST"
   psg_regex: .*?-PSG.edf

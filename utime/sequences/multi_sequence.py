@@ -160,6 +160,7 @@ class MultiSequence(_BaseSequence):
                     # sequence until we find one that works.
                     select_idx = np.random.choice(self.sequences_idxs, size=1, replace=False, p=self.sample_prob)[0]
                     logger.warning(f"ChannelNotFoundError for sequence '{sequence.identifier}' (idx {select_idx}). Trying another sequence (idx {select_idx}).")
+                    print(f"ChannelNotFoundError for sequence '{sequence.identifier}' (idx {select_idx}). Trying another sequence (idx {select_idx}).")
                     continue
                 valid = True
             # try:

@@ -15,10 +15,10 @@
 
 ./unmount_erda.sh
 ./mount_erda.sh
-source /python-venv/usleep-keras3/bin/activate
+source /home/lht444/python-venv/new-usleep/bin/activate
 pip install .
 cd u-sleep-keras3
-ut train --num_gpus 1 --preprocessed --max_train_samples_per_epoch 2000000 --backend torch --continue_training
+ut train --num_gpus 1 --preprocessed --max_train_samples_per_epoch 1000000 --backend torch --continue_training
 cd ..
 
 # cd test_scheduler
