@@ -51,14 +51,14 @@ def change_root_in_list_file(list_file_path, new_root, excluded_samples=[]):
 
 if __name__ == "__main__":
     split_dirs = [
-        '/home/jojuo/Documents/UCPH-RA/U-Sleep-Keras-3.0/erda/sleep-data/resources/processed/' + dataset + '/views' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']
+        '/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/' + dataset + '/views' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']
     ]
     
     out_dirs = [
-        '/home/jojuo/Documents/UCPH-RA/U-Sleep-Keras-3.0/erda/sleep-data/resources/processed/' + dataset + '/views_local' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']
+        '/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/' + dataset + '/views_clean' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']
     ]
     
-    new_roots = [f'/home/jojuo/Documents/UCPH-RA/U-Sleep-Keras-3.0/erda/sleep-data/resources/processed/{dataset}' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']]
+    new_roots = [f'/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/{dataset}' for dataset in ['abc', 'ccshs', 'cfs', 'chat', 'dcsm', 'homepap', 'mesa', 'mros', 'phys', 'sedf_sc', 'sedf_st', 'shhs', 'sof']]
     
     excluded_samples = {
         'abc': [],

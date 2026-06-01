@@ -1,0 +1,13 @@
+channel_sampling_groups: [[F3-M2, F4-M1, C3-M2, C4-M1, O1-M2, O2-M1], [E1-M2]]
+train_data:
+  data_dir: /home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5
+  period_length: 30.0
+  time_unit: SECOND
+  identifier: TRAIN
+
+val_data:
+  data_dir: /home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5
+  period_length: 30.0
+  time_unit: SECOND
+  identifier: VAL
+

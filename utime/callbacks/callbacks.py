@@ -105,14 +105,14 @@ class Validation(Callback):
                                                             n_val)
                 print(s, end="\r", flush=True)
 
-                with sleep_study_context as ss:
-                    try:
+                try:
+                    with sleep_study_context as ss:
                         x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
                         # print('X type:', type(x), 'Y type:', type(y))
                         pred = self.model.predict_on_batch([x])
-                    except (ChannelNotFoundError, CouldNotLoadError) as e:
-                        logger.warning(f"Error occurred for study {ss.identifier}: {e}. Skipping!")
-                        continue
+                except (ChannelNotFoundError, CouldNotLoadError) as e:
+                    logger.warning(f"Error occurred for study {ss.identifier}: {e}. Skipping!")
+                    continue
 
                 # Compute counts
                 if hasattr(pred, "numpy"):

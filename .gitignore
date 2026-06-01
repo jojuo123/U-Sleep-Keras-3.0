@@ -4,6 +4,7 @@ venv/
 new_venv/
 utime.egg-info/
 u-sleep-keras3/
+u-sleep-keras3-erda/model/
 test_scheduler/
 .eggs/
 .DS_Store
