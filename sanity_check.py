@@ -79,12 +79,65 @@ def merge_hdf5_external(output_file, input_files):
 
 # import h5py
 
-def preview_h5(name, obj):
-    if name.count('/') == 1:
-        if isinstance(obj, h5py.Dataset):
-            print(f"Dataset '{name}': {obj.shape}")
-        elif isinstance(obj, h5py.Group):
-            print(f"Group '{name}'")
+excluded_samples = {
+        'abc': [],
+        'ccshs': [],
+        'cfs': [],
+        'chat': ['chat-baseline-300927'],
+        'dcsm': [],
+        'homepap': ['1600052', '1600138', '1600280', '1600047', '1600194', '1600361', '1600087', '1600368', '1600203'],
+        'mesa': [],
+        'mros': ['visit1-aa2180', 'visit1-aa3370', 'visit1-aa1367', 'visit1-aa1715', 'visit1-aa1900', 'visit1-aa3903', 'visit1-aa3411'],
+        'phys': [],
+        'sedf_sc': [],
+        'sedf_st': [],
+        'shhs': [],
+        'sof': []
+    }
 
-with h5py.File('/home/lht444/U-Sleep-Keras-3.0/erda2/sleep-data/resources/processed/processed_data.h5', 'r') as f:
+remove = []
+
+def preview_h5(name, obj):
+    
+    if isinstance(obj, h5py.Dataset):
+        # print(f"Dataset '{name}': {obj.shape}")
+        # for k, vs in excluded_samples.items():
+        #     for v in vs:
+        #         if k in name and v in name:
+        #             print(f"Excluded sample '{name}', dataset")
+        pass
+    elif isinstance(obj, h5py.Group):
+        for k, vs in excluded_samples.items():
+            for v in vs:
+                if k in name and v in name:
+                    # print(f"Excluded sample '{name}', group")
+                    if name.count('/') == 2:  # only remove top-level groups, not datasets
+                        remove.append(name)
+
+with h5py.File('/home/extra/sleep-data/processed_data.h5', 'r') as f:
     f.visititems(preview_h5)
+
+print(remove)
+
+with h5py.File('/home/extra/sleep-data/processed_data.h5', 'a') as f:
+    for name in remove:
+        del f[name]
+        
+def preview_h5_2(name, obj):
+    
+    if isinstance(obj, h5py.Dataset):
+        # print(f"Dataset '{name}': {obj.shape}")
+        # for k, vs in excluded_samples.items():
+        #     for v in vs:
+        #         if k in name and v in name:
+        #             print(f"Excluded sample '{name}', dataset")
+        pass
+    elif isinstance(obj, h5py.Group):
+        for k, vs in excluded_samples.items():
+            for v in vs:
+                if k in name and v in name:
+                    print(f"Excluded sample '{name}', group")
+                    # remove.append(name)
+
+with h5py.File('/home/extra/sleep-data/processed_data.h5', 'r') as f:
+    f.visititems(preview_h5_2)

@@ -227,7 +227,7 @@ class Trainer(object):
             # workers=3, #TODO: Argument moved to Sequence/PyDataset
             # max_queue_size=10, #TODO: Argument moved to Sequence/PyDataset
             shuffle=False,  # Determined by the chosen Sequence class
-            verbose=verbose
+            verbose=1
         )
 
         

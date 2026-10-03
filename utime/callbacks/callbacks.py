@@ -524,14 +524,10 @@ class ClearMemoryCB(Callback):
     def __init__(self):
         super().__init__()
 
-    def on_batch_end(self, batch, logs=None):
-        clear_memory(session=False)
-    
-    def on_batch_begin(self, batch, logs=None):
-        clear_memory(session=False)
-    
     def on_epoch_end(self, epoch, logs=None):
-        clear_memory(session=True)
+        # OBS: session=False -- clear_session() must not be called during fit(),
+        # as it resets Keras global state (and torch dynamo caches) in use by the model
+        clear_memory(session=False)
 
 class GPUCheckCB(Callback):
     """

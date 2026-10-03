@@ -8,7 +8,7 @@ ut init).
 import logging
 import numpy as np
 import os
-import tables
+# import tables
 # import tensorflow as tf
 # import jax
 import keras
@@ -383,10 +383,11 @@ def entry_func(args=None):
     # Get the script to execute, parse only first input
     parser = get_argparser()
     args = parser.parse_args(args)
-    try:
-        run(args=args)
-    finally:
-        tables.file._open_files.close_all()
+    # try:
+    #     run(args=args)
+    # finally:
+    #     tables.file._open_files.close_all()
+    run(args=args)
 
 
 if __name__ == "__main__":
