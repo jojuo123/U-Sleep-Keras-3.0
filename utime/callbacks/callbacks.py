@@ -109,7 +109,13 @@ class Validation(Callback):
                     with sleep_study_context as ss:
                         x, y = sequence.get_single_study_full_seq(ss.identifier, reshape=True)
                         # print('X type:', type(x), 'Y type:', type(y))
-                        pred = self.model.predict_on_batch([x])
+                        # Predict in chunks of batch_size segments so GPU memory is bounded
+                        # regardless of the study length
+                        chunk_size = max(1, sequence.batch_size)
+                        pred = np.concatenate([
+                            keras.ops.convert_to_numpy(self.model.predict_on_batch([x[j:j + chunk_size]]))
+                            for j in range(0, len(x), chunk_size)
+                        ], axis=0)
                 except (ChannelNotFoundError, CouldNotLoadError) as e:
                     logger.warning(f"Error occurred for study {ss.identifier}: {e}. Skipping!")
                     continue

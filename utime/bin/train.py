@@ -34,6 +34,29 @@ from psg_utils.dataset.queue.utils import get_data_queues
 logger = logging.getLogger(__name__)
 
 
+def use_optree_for_torch_backend():
+    """
+    With the torch backend, Keras uses torch's _pytree for its nested-structure ops. Each
+    call creates reference cycles that hold layer activations, which pile up in the oldest
+    GC generation and leak GPU memory over training. Use the (cycle-free) optree
+    implementation instead, as Keras does for the other backends.
+
+    Relies on the private 'keras.src.tree' module (verified for Keras 3.12 - 3.15). If it
+    moves, a warning is logged and the Keras default is kept.
+    """
+    if keras.backend.backend() != "torch":
+        return
+    try:
+        from keras.src.tree import tree_api, optree_impl
+        if not hasattr(tree_api, "tree_impl"):
+            raise AttributeError("keras.src.tree.tree_api has no attribute 'tree_impl'")
+        tree_api.tree_impl = optree_impl
+        logger.info("Using optree for Keras tree operations (avoids torch _pytree GPU memory leak).")
+    except (ImportError, AttributeError) as e:
+        logger.warning(f"Could not switch Keras tree implementation to optree ({e}). "
+                       f"Training may leak GPU memory through reference cycles with the torch backend.")
+
+
 def get_argparser():
     """
     Returns an argument parser for this script
@@ -126,6 +149,10 @@ def get_argparser():
                              "using a queue type with multiple processes. Only "
                              "in effect if --train_queue_type or --val_queue_type"
                              " is set to 'limitation'. Default is 0.")
+    parser.add_argument("--dtype_policy", type=str, default="float32",
+                        help="Keras dtype policy for the model, e.g. 'float32' "
+                             "or 'mixed_bfloat16' (mixed precision, reduces "
+                             "activation memory on Ampere+ GPUs).")
     return parser
 
 
@@ -200,6 +227,7 @@ def run(args):
 
     add_logging_file_handler(args.log_file, args.overwrite, mode="w" if not args.continue_training else "a")
     logger.info(f"Args dump: {vars(args)}")
+    use_optree_for_torch_backend()
 
     # Settings depending on --preprocessed flag.
     if args.preprocessed:
@@ -284,6 +312,10 @@ def run(args):
             
         logger.info(f"Num GPUs: {len(gpus)}")
         logger.info(f"GPUs: {gpus}")
+
+        # Must be set before the model is built
+        keras.config.set_dtype_policy(args.dtype_policy)
+        logger.info(f"Using dtype policy: {keras.config.dtype_policy().name}")
         
         if len(gpus) <= 1:
             model = init_model(hparams["build"], clear_previous=False)

@@ -334,8 +334,10 @@ class USleep(Model):
                      bias_regularizer=regularizer,
                      padding="same",
                      name="{}sequence_conv_out_2".format(name_prefix),
+                     dtype="float32",  # keep softmax output in float32 under mixed precision
                      **other_conv_params)(out)
-        out = OutputReshape(n_periods=n_periods, name="{}output_reshape".format(name_prefix))(out)
+        out = OutputReshape(n_periods=n_periods, name="{}output_reshape".format(name_prefix),
+                            dtype="float32")(out)
         return out
 
     def init_model(self, inputs=None, name_prefix=""):
